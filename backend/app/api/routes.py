@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.services.parser_client import ParserClient
 from app.services.graph_builder import GraphBuilder
 from app.services.risk_scorer import RiskScorer
+from app.services.llm_summarizer import LLMSummarizer, ProgramSpec
 
 router = APIRouter()
 
@@ -92,6 +93,7 @@ def get_codebase_programs(cid: str, risk_bucket: Optional[str] = None):
         bucket = risk_info.get("bucket", "Low")
         if risk_bucket and bucket.lower() != risk_bucket.lower():
             continue
+        has_spec = pname in cdata["llm_specs"]
         result.append({
             "programName": pname,
             "linesOfCode": prog.linesOfCode,
@@ -101,7 +103,8 @@ def get_codebase_programs(cid: str, risk_bucket: Optional[str] = None):
             "paragraphCount": len(prog.paragraphs),
             "callCount": len(prog.calls),
             "copybookCount": len(prog.copybooks),
-            "hasSqlOrCics": len(prog.sqlBlocks) > 0 or prog.dynamicCalls
+            "hasSqlOrCics": len(prog.sqlBlocks) > 0 or prog.dynamicCalls,
+            "hasSpec": has_spec
         })
 
     return sorted(result, key=lambda x: x["riskScore"], reverse=True)
@@ -124,4 +127,41 @@ def get_program_detail(cid: str, name: str):
         "program": prog,
         "risk": risk_info,
         "spec": llm_spec
+    }
+
+@router.post("/codebase/{cid}/programs/{name}/summarize")
+def summarize_single_program(cid: str, name: str):
+    if cid not in codebase_store:
+        raise HTTPException(status_code=404, detail=f"Codebase '{cid}' not found")
+
+    cdata = codebase_store[cid]
+    pname = name.upper()
+    if pname not in cdata["programs"]:
+        raise HTTPException(status_code=404, detail=f"Program '{name}' not found in codebase '{cid}'")
+
+    prog = cdata["programs"][pname]
+    summarizer = LLMSummarizer()
+    spec = summarizer.summarize_program(prog)
+
+    # Cache spec in memory
+    cdata["llm_specs"][pname] = spec.model_dump()
+    return spec
+
+@router.post("/codebase/{cid}/summarize-all")
+def summarize_all_programs(cid: str):
+    if cid not in codebase_store:
+        raise HTTPException(status_code=404, detail=f"Codebase '{cid}' not found")
+
+    cdata = codebase_store[cid]
+    summarizer = LLMSummarizer()
+    results = {}
+
+    for pname, prog in cdata["programs"].items():
+        spec = summarizer.summarize_program(prog)
+        cdata["llm_specs"][pname] = spec.model_dump()
+        results[pname] = spec.model_dump()
+
+    return {
+        "summarizedCount": len(results),
+        "specs": results
     }
