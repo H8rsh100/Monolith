@@ -8,6 +8,7 @@ from app.services.parser_client import ParserClient
 from app.services.graph_builder import GraphBuilder
 from app.services.risk_scorer import RiskScorer
 from app.services.llm_summarizer import LLMSummarizer, ProgramSpec
+from app.services.codegen import CodegenGenerator
 
 router = APIRouter()
 
@@ -165,3 +166,24 @@ def summarize_all_programs(cid: str):
         "summarizedCount": len(results),
         "specs": results
     }
+
+@router.post("/codebase/{cid}/programs/{name}/codegen")
+def generate_program_codegen(cid: str, name: str):
+    if cid not in codebase_store:
+        raise HTTPException(status_code=404, detail=f"Codebase '{cid}' not found")
+
+    cdata = codebase_store[cid]
+    pname = name.upper()
+    if pname not in cdata["programs"]:
+        raise HTTPException(status_code=404, detail=f"Program '{name}' not found in codebase '{cid}'")
+
+    # If spec doesn't exist yet, auto-generate it
+    if pname not in cdata["llm_specs"]:
+        prog = cdata["programs"][pname]
+        summarizer = LLMSummarizer()
+        spec = summarizer.summarize_program(prog)
+        cdata["llm_specs"][pname] = spec.model_dump()
+
+    spec_data = cdata["llm_specs"][pname]
+    generator = CodegenGenerator()
+    return generator.generate_python_stub_and_tests(pname, spec_data)
