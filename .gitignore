@@ -1,0 +1,39 @@
+# Build & Binary artifacts
+tools/
+monolith-scaffold.zip
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Java
+target/
+.mvn/
+*.class
+
+# Python
+backend/.venv/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Node / Frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+.eslintcache
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
