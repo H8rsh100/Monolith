@@ -1,9 +1,6 @@
 package com.monolith.parser;
 
 import com.monolith.parser.model.*;
-import io.github.uwol.cobol.CobolParseTreeWalker;
-import io.github.uwol.cobol.runner.CobolParseTestRunner;
-import io.github.uwol.cobol.runner.impl.CobolParseTestRunnerImpl;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -128,18 +125,6 @@ public class CobolParserService {
 
         // Procedure Division Paragraphs & Cyclomatic Complexity
         analysis.setParagraphs(extractParagraphs(content));
-
-        // Attempt ProLeap AST tree validation integration
-        try {
-            CobolParseTestRunner runner = new CobolParseTestRunnerImpl();
-            if (copybookDir != null && copybookDir.exists()) {
-                runner.parse(cobolFile, copybookDir);
-            } else {
-                runner.parse(cobolFile);
-            }
-        } catch (Exception e) {
-            // Soft fallback to regex/grammar extraction if copybook path is partial
-        }
 
         return analysis;
     }
