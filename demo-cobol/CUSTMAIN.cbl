@@ -1,0 +1,79 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CUSTMAIN.
+       AUTHOR. MAINFRAME TEAM.
+      *================================================================*
+      * MAIN CUSTOMER BATCH AND TRANSACTION PROCESSING DRIVER
+      *================================================================*
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CUST-FILE ASSIGN TO "CUSTDATA.DAT"
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC
+               RECORD KEY IS CUST-ID.
+           SELECT ACCT-FILE ASSIGN TO "ACCTDATA.DAT"
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC
+               RECORD KEY IS ACCT-NUMBER.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CUST-FILE.
+       COPY CUSTREC.
+
+       FD  ACCT-FILE.
+       COPY ACCTREC.
+
+       WORKING-STORAGE SECTION.
+       01  WS-FLAGS.
+           05  WS-END-OF-FILE        PIC X(01) VALUE 'N'.
+           05  WS-PROCESS-STATUS     PIC X(02) VALUE 'OK'.
+       01  WS-COUNTERS.
+           05  WS-RECORDS-READ       PIC 9(06) VALUE ZERO.
+           05  WS-RECORDS-PROCESSED  PIC 9(06) VALUE ZERO.
+       01  WS-SUBPROGRAM-PARAMS.
+           05  WS-CALL-TARGET        PIC X(08) VALUE "ACCTPROC".
+           05  WS-PASS-AMOUNT        PIC 9(08)V99 VALUE 00001000.00.
+
+       PROCEDURE DIVISION.
+       0000-MAIN-LOGIC.
+           DISPLAY "STARTING CUSTMAIN BATCH PROCESSING".
+           PERFORM 1000-INITIALIZE-FILES.
+           PERFORM 2000-PROCESS-RECORDS UNTIL WS-END-OF-FILE = 'Y'.
+           PERFORM 3000-CLOSE-FILES.
+           DISPLAY "CUSTMAIN BATCH PROCESSING COMPLETE".
+           STOP RUN.
+
+       1000-INITIALIZE-FILES.
+           OPEN I-O CUST-FILE ACCT-FILE.
+           IF WS-PROCESS-STATUS NOT = 'OK' THEN
+               DISPLAY "ERROR OPENING FILES"
+               MOVE 'Y' TO WS-END-OF-FILE
+           END-IF.
+
+       2000-PROCESS-RECORDS.
+           READ CUST-FILE NEXT RECORD
+               AT END MOVE 'Y' TO WS-END-OF-FILE
+               NOT AT END PERFORM 2100-EVALUATE-CUSTOMER
+           END-READ.
+
+       2100-EVALUATE-CUSTOMER.
+           ADD 1 TO WS-RECORDS-READ
+           IF CUST-STATUS = 'A' THEN
+               EVALUATE TRUE
+                   WHEN CUST-CREDIT-SCORE > 750
+                       CALL "INTRCALC" USING CUSTOMER-RECORD WS-PASS-AMOUNT
+                   WHEN CUST-CREDIT-SCORE > 600
+                       CALL "ACCTPROC" USING CUSTOMER-RECORD
+                   WHEN OTHER
+                       CALL "TXNLOG" USING CUSTOMER-RECORD
+               END-EVALUATE
+               ADD 1 TO WS-RECORDS-PROCESSED
+           ELSE
+               DISPLAY "SKIP INACTIVE CUST: " CUST-ID
+           END-IF.
+
+       3000-CLOSE-FILES.
+           CLOSE CUST-FILE ACCT-FILE.
+           DISPLAY "TOTAL READ: " WS-RECORDS-READ.
+           DISPLAY "TOTAL PROCESSED: " WS-RECORDS-PROCESSED.

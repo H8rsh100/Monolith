@@ -1,0 +1,53 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TXNLOG.
+       AUTHOR. AUDIT TEAM.
+      *================================================================*
+      * TRANSACTION LOGGING SUBPROGRAM (WITH CICS & VSAM LOGGING)
+      *================================================================*
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT AUDIT-FILE ASSIGN TO "AUDITLOG.DAT"
+               ORGANIZATION IS SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  AUDIT-FILE.
+       COPY TXNREC.
+
+       WORKING-STORAGE SECTION.
+       01  WS-CICS-RESPONSE          PIC S9(08) COMP.
+       01  WS-TIMESTAMP              PIC X(20) VALUE "2026-08-14-22.30.00.".
+
+       LINKAGE SECTION.
+       COPY CUSTREC.
+
+       PROCEDURE DIVISION USING CUSTOMER-RECORD.
+       0000-LOG-TRANSACTION-MAIN.
+           DISPLAY "AUDIT LOGGING FOR CUST: " CUST-ID.
+           PERFORM 1000-WRITE-VSAM-AUDIT.
+           PERFORM 2000-EXECUTE-CICS-NOTIFY.
+           EXIT PROGRAM.
+
+       1000-WRITE-VSAM-AUDIT.
+           OPEN EXTEND AUDIT-FILE.
+           MOVE "TXN-20260814-001" TO TXN-ID.
+           MOVE CUST-ID TO TXN-ACCT-NUMBER.
+           MOVE "DEP" TO TXN-TYPE.
+           MOVE 500.00 TO TXN-AMOUNT.
+           MOVE WS-TIMESTAMP TO TXN-TIMESTAMP.
+           MOVE "OK" TO TXN-STATUS.
+           WRITE TRANSACTION-RECORD.
+           CLOSE AUDIT-FILE.
+
+       2000-EXECUTE-CICS-NOTIFY.
+           EXEC CICS
+               WRITEQ TS
+               QUEUE('AUDITQ')
+               FROM(TRANSACTION-RECORD)
+               LENGTH(LENGTH OF TRANSACTION-RECORD)
+               RESP(WS-CICS-RESPONSE)
+           END-EXEC.
+           IF WS-CICS-RESPONSE NOT = 0 THEN
+               DISPLAY "CICS QUEUE WRITE WARNING RESP: " WS-CICS-RESPONSE
+           END-IF.
