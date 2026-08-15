@@ -31,25 +31,25 @@ export const SurveyorHeader: React.FC<SurveyorHeaderProps> = ({
           </div>
           <div>
             <h1 className="font-serif font-bold text-lg text-[#1B2A3A] tracking-tight uppercase flex items-center gap-3">
-              GEOLOGICAL EXCAVATION SURVEY <span className="text-[11px] font-mono px-2 py-0.5 border border-[#1B2A3A] bg-[#C9B896] text-[#1B2A3A] uppercase font-bold">VOL. 1804 // COBOL STRATIGRAPHY</span>
+              MONOLITH <span className="text-[11px] font-mono px-2 py-0.5 border border-[#1B2A3A] bg-[#C9B896] text-[#1B2A3A] uppercase font-bold">COBOL MAINFRAME MODERNIZATION ENGINE</span>
             </h1>
           </div>
         </div>
 
-        {/* Survey Controls */}
+        {/* Action Controls */}
         <div className="flex items-center gap-3 font-mono text-xs">
           <button
             onClick={onOpenReport}
-            className="px-3 py-1.5 border border-[#1B2A3A] bg-[#C9B896] hover:bg-[#A8926B] text-[#1B2A3A] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 border border-[#1B2A3A] bg-[#C9B896] hover:bg-[#A8926B] text-[#1B2A3A] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 shadow-sm"
           >
             <FileText className="h-3.5 w-3.5" />
-            [PRINTED SURVEY REPORT]
+            [EXECUTIVE REPORT]
           </button>
 
           <button
             onClick={onSummarizeAll}
             disabled={loading}
-            className="px-3 py-1.5 border border-[#1B2A3A] bg-[#E4D9BC] hover:bg-[#C9B896] text-[#1B2A3A] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-3 py-1.5 border border-[#1B2A3A] bg-[#E4D9BC] hover:bg-[#C9B896] text-[#1B2A3A] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             [EXTRACT SPECS]
@@ -58,10 +58,10 @@ export const SurveyorHeader: React.FC<SurveyorHeaderProps> = ({
           <button
             onClick={onIngest}
             disabled={loading}
-            className="px-4 py-1.5 border border-[#1B2A3A] bg-[#1B2A3A] text-[#EDE6D6] hover:bg-[#233549] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 disabled:opacity-50"
+            className="px-4 py-1.5 border border-[#1B2A3A] bg-[#1B2A3A] text-[#EDE6D6] hover:bg-[#233549] font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
           >
             <Play className="h-3 w-3 fill-current" />
-            [EXCAVATE CORE SAMPLE]
+            [WEAVE CODEBASE]
           </button>
         </div>
       </div>
@@ -78,7 +78,7 @@ export const SurveyorHeader: React.FC<SurveyorHeaderProps> = ({
           }`}
         >
           <Compass className="h-3.5 w-3.5" />
-          TAB I: CORE SAMPLE GRAPH
+          TAB I: TOPOLOGY MAP
         </button>
 
         <button
@@ -90,7 +90,7 @@ export const SurveyorHeader: React.FC<SurveyorHeaderProps> = ({
           }`}
         >
           <ShieldAlert className="h-3.5 w-3.5" />
-          TAB II: SEDIMENT RISK TABLE
+          TAB II: RISK MATRIX
         </button>
 
         <button

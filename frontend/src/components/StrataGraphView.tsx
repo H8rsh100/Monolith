@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -11,7 +11,7 @@ import {
   ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Flag, Compass, Database, FileCode, Layers, Maximize2, RefreshCw } from 'lucide-react';
+import { Flag, Database, FileCode, Layers, Maximize2, RefreshCw } from 'lucide-react';
 
 interface StrataGraphViewProps {
   graphData: { nodes: any[]; edges: any[] };
@@ -38,16 +38,16 @@ const DigMarkerNode: React.FC<NodeProps> = ({ data }) => {
 
   return (
     <div
-      className={`px-3 py-2 bg-[#EDE6D6] text-[#1B2A3A] font-mono text-xs border border-[#1B2A3A] rounded-[2px] shadow-none min-w-[190px] transition-all hover:bg-[#E4D9BC] cursor-pointer ${
+      className={`px-3.5 py-2 bg-[#EDE6D6] text-[#1B2A3A] font-mono text-xs border border-[#1B2A3A] rounded-[2px] shadow-sm min-w-[190px] transition-all hover:scale-105 cursor-pointer group ${
         isCritical ? 'border-l-4 border-l-[#A8462E]' : 'border-l-4 border-l-[#B8862E]'
       }`}
     >
-      <Handle type="target" position={Position.Top} className="!bg-[#1B2A3A] !w-2 !h-2 !border-none" />
+      <Handle type="target" position={Position.Top} className="!bg-[#1B2A3A] !w-2.5 !h-2.5 !border-none" />
 
       <div className="flex items-center justify-between gap-2 border-b border-[#1B2A3A]/30 pb-1 mb-1">
         <div className="flex items-center gap-1.5 font-bold">
           {getMarkerIcon()}
-          <span className="font-mono text-xs tracking-tight uppercase">{label}</span>
+          <span className="font-mono text-xs tracking-tight uppercase group-hover:text-[#A8462E] transition-colors">{label}</span>
         </div>
         <span className="text-[10px] text-[#1B2A3A]/70 uppercase font-sans">MARKER</span>
       </div>
@@ -63,7 +63,7 @@ const DigMarkerNode: React.FC<NodeProps> = ({ data }) => {
         )}
       </div>
 
-      <Handle type="source" position={Position.Bottom} className="!bg-[#1B2A3A] !w-2 !h-2 !border-none" />
+      <Handle type="source" position={Position.Bottom} className="!bg-[#1B2A3A] !w-2.5 !h-2.5 !border-none" />
     </div>
   );
 };
@@ -77,8 +77,7 @@ const nodeTypes = {
 
 const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProgram, onIngest, loading }) => {
   const { fitView } = useReactFlow();
-  const [excavationDepth, setExcavationDepth] = useState<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   // Derive Vertical Stratigraphy Layout (Depth-Driven Y-Coordinates)
   const nodes: Node[] = (graphData.nodes || []).map((n, idx) => {
@@ -113,15 +112,27 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
     };
   });
 
-  const edges: Edge[] = (graphData.edges || []).map((e) => ({
-    ...e,
-    style: {
-      stroke: '#1B2A3A',
-      strokeWidth: 1.5,
-      strokeDasharray: '4 4'
-    },
-    animated: false
-  }));
+  // Taut Thread Edge Lighting Dynamics & Clean Label Overlap Elimination
+  const edges: Edge[] = (graphData.edges || []).map((e) => {
+    const rawLabel = e.label || (e.data?.relationship as string) || '';
+    const isConnected = hoveredNodeId ? (e.source === hoveredNodeId || e.target === hoveredNodeId) : false;
+    const isDimmed = hoveredNodeId ? !isConnected : false;
+
+    return {
+      ...e,
+      // Show relationship text ONLY when hovered to prevent box clumping/overlaps!
+      label: isConnected && rawLabel ? rawLabel.toUpperCase() : undefined,
+      labelBgStyle: { fill: '#1B2A3A', rx: 2, ry: 2 },
+      labelStyle: { fill: '#EDE6D6', fontWeight: 700, fontSize: 10, fontFamily: 'JetBrains Mono' },
+      style: {
+        stroke: isConnected ? '#A8462E' : '#1B2A3A',
+        strokeWidth: isConnected ? 3.5 : 1.5,
+        opacity: isDimmed ? 0.12 : 0.75,
+        strokeDasharray: isConnected ? 'none' : '4 4'
+      },
+      animated: isConnected
+    };
+  });
 
   useEffect(() => {
     if (nodes.length === 0 && !loading) {
@@ -136,14 +147,6 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
     return () => clearTimeout(timer);
   }, [fitView, nodes.length]);
 
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.deltaY > 0) {
-      setExcavationDepth((prev) => Math.min(100, prev + 5));
-    } else {
-      setExcavationDepth((prev) => Math.max(0, prev - 5));
-    }
-  };
-
   const handleNodeClick = (_: any, node: Node) => {
     if (node.data && node.data.name && (node.type === 'program' || !node.type)) {
       onSelectProgram(node.data.name as string);
@@ -151,11 +154,7 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
   };
 
   return (
-    <div
-      ref={containerRef}
-      onWheel={handleWheel}
-      className="w-full h-full min-h-[650px] relative vellum-bg overflow-hidden font-sans select-none"
-    >
+    <div className="w-full h-full min-h-[650px] relative vellum-bg overflow-hidden font-sans select-none">
       
       {/* Stratigraphy Background Layers (Surface to Bedrock) */}
       <div className="absolute inset-0 pointer-events-none flex flex-col font-mono text-[11px] font-bold text-[#1B2A3A]/40 uppercase">
@@ -194,17 +193,6 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
         </g>
       </svg>
 
-      {/* Parallax Excavation Dust Particles */}
-      <div
-        className="absolute inset-0 pointer-events-none z-10 transition-opacity duration-300"
-        style={{
-          opacity: excavationDepth / 100,
-          backgroundImage: 'radial-gradient(circle, rgba(132, 109, 73, 0.25) 1px, transparent 1px)',
-          backgroundSize: '16px 16px',
-          transform: `translateY(-${excavationDepth * 2}px)`
-        }}
-      />
-
       {nodes.length === 0 ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#EDE6D6] z-20 font-sans">
           <div className="p-4 border border-[#1B2A3A] bg-[#E4D9BC] mb-4 rounded-[2px]">
@@ -223,6 +211,8 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
           edges={edges}
           nodeTypes={nodeTypes}
           onNodeClick={handleNodeClick}
+          onNodeMouseEnter={(_, node) => setHoveredNodeId(node.id)}
+          onNodeMouseLeave={() => setHoveredNodeId(null)}
           fitView
           fitViewOptions={{ padding: 0.25 }}
           colorMode="light"
@@ -231,7 +221,7 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
         </ReactFlow>
       )}
 
-      {/* Top Controls & Depth Counter */}
+      {/* Top Controls Bar (Cleaned of Excavation Depth text) */}
       {nodes.length > 0 && (
         <div className="absolute top-6 left-6 z-20 flex items-center gap-3 font-mono text-xs">
           <button
@@ -239,10 +229,10 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
             className="px-3.5 py-2 border border-[#1B2A3A] bg-[#EDE6D6] hover:bg-[#E4D9BC] text-[#1B2A3A] font-bold uppercase flex items-center gap-2 shadow-sm"
           >
             <Maximize2 className="h-3.5 w-3.5" />
-            [RECENTER SURVEY MAP]
+            [RECENTER TOPOLOGY MAP]
           </button>
           <div className="px-3.5 py-2 border border-[#1B2A3A] bg-[#E4D9BC] text-[#1B2A3A] font-bold shadow-sm">
-            EXCAVATION DEPTH: <span className="text-[#A8462E]">{excavationDepth * 10}m</span> | STRATA: <span className="text-[#1B2A3A]">5 LAYERS</span>
+            INTERSECTION NODES: <span className="text-[#A8462E]">{nodes.length}</span> | STRATA: <span className="text-[#1B2A3A]">5 LAYERS</span>
           </div>
         </div>
       )}
@@ -250,7 +240,7 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
       {/* Sleek Horizontal Stratigraphy Legend Bar (Bottom Edge, Zero Overlap) */}
       <div className="absolute bottom-4 left-6 right-6 z-20 px-4 py-2 border border-[#1B2A3A] bg-[#EDE6D6]/95 backdrop-blur-sm text-xs font-mono flex items-center justify-between shadow-md">
         <span className="font-serif font-bold text-[#1B2A3A] uppercase text-[11px] tracking-wider shrink-0 pr-4 border-r border-[#1B2A3A]/30">
-          Geological Stratigraphy Legend
+          Stratigraphy Legend
         </span>
         
         <div className="flex items-center gap-6 overflow-x-auto text-[11px]">
