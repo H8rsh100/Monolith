@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { VerticalNav } from './components/VerticalNav';
-import { ScanChamberGraph } from './components/ScanChamberGraph';
-import { FloatingProgramDetailHUD } from './components/FloatingProgramDetailHUD';
-import { FloatingRiskTableHUD } from './components/FloatingRiskTableHUD';
-import { FloatingCodegenHUD } from './components/FloatingCodegenHUD';
-import { FloatingReportHUD } from './components/FloatingReportHUD';
+import { TerminalHeader } from './components/TerminalHeader';
+import { TerminalTopologyView } from './components/TerminalTopologyView';
+import { TerminalRiskMatrixView } from './components/TerminalRiskMatrixView';
+import { TerminalProgramDetailView } from './components/TerminalProgramDetailView';
+import { TerminalCodegenView } from './components/TerminalCodegenView';
+import { TerminalReportModal } from './components/TerminalReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
-  const [activeHud, setActiveHud] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
+  const [activeTab, setActiveTab] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
   const [codebaseId, setCodebaseId] = useState<string>('demo-cobol');
   const [graphData, setGraphData] = useState<{ nodes: any[]; edges: any[] }>({ nodes: [], edges: [] });
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
@@ -110,28 +110,26 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_autopsy_report_${codebaseId}.json`;
+    a.download = `monolith_mainframe_report_${codebaseId}.json`;
     a.click();
   };
 
   const handleSelectProgram = (pname: string) => {
     setSelectedProgram(pname);
     loadProgramDetail(codebaseId, pname);
-    setActiveHud('detail');
+    setActiveTab('detail');
   };
 
-  const isPaneOpen = activeHud !== 'graph';
-
   return (
-    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent flex">
+    <div className="relative w-screen h-screen bg-crtBg text-crtGreen overflow-hidden font-mono selection:bg-crtGreen selection:text-black flex flex-col">
       
-      {/* Continuous Diagnostic Viewport Scanline Loop */}
-      <div className="scanline-overlay" />
+      {/* CRT Screen Scanlines & Glass Vignette Overlay */}
+      <div className="crt-overlay" />
 
-      {/* Left Vertical Spine Navigation Rail */}
-      <VerticalNav
-        activeHud={activeHud}
-        setActiveHud={setActiveHud}
+      {/* IBM 3270 Terminal Header & Function Key Rail */}
+      <TerminalHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
         onIngest={handleIngest}
         onSummarizeAll={handleSummarizeAll}
@@ -139,64 +137,52 @@ export const App: React.FC = () => {
         selectedProgram={selectedProgram}
       />
 
-      {/* Main Dual-Pane Viewport Container */}
-      <main className="flex-1 ml-16 h-full flex overflow-hidden">
-        
-        {/* Left Pane: Permanent Scan Chamber Graph Canvas */}
-        <div className="flex-1 h-full relative transition-all duration-300">
-          <ScanChamberGraph
+      {/* Main Terminal Viewport */}
+      <main className="flex-1 overflow-hidden relative z-10">
+        {activeTab === 'graph' && (
+          <TerminalTopologyView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
             loading={loading}
-            activeHud={activeHud}
           />
-        </div>
-
-        {/* Right Pane: In-Flow Side Inspector Panel (Zero Overlap) */}
-        {isPaneOpen && (
-          <div className="w-[520px] lg:w-[600px] h-full transition-all duration-300 z-30 shrink-0">
-            {activeHud === 'detail' && (
-              <FloatingProgramDetailHUD
-                detail={programDetail}
-                codegen={codegen}
-                onSummarize={handleSummarizeProgram}
-                onGenerateCodegen={() => handleGenerateCodegen()}
-                onClose={() => setActiveHud('graph')}
-                loading={loading}
-              />
-            )}
-
-            {activeHud === 'risk' && (
-              <FloatingRiskTableHUD
-                programs={programs}
-                onSelectProgram={handleSelectProgram}
-                onClose={() => setActiveHud('graph')}
-              />
-            )}
-
-            {activeHud === 'codegen' && (
-              <FloatingCodegenHUD
-                programs={programs}
-                codegen={codegen}
-                selectedProgram={selectedProgram}
-                onSelectProgram={(p) => {
-                  setSelectedProgram(p);
-                  loadProgramDetail(codebaseId, p);
-                }}
-                onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
-                onClose={() => setActiveHud('graph')}
-                loading={loading}
-              />
-            )}
-          </div>
         )}
 
+        {activeTab === 'risk' && (
+          <TerminalRiskMatrixView
+            programs={programs}
+            onSelectProgram={handleSelectProgram}
+          />
+        )}
+
+        {activeTab === 'detail' && (
+          <TerminalProgramDetailView
+            detail={programDetail}
+            codegen={codegen}
+            onSummarize={handleSummarizeProgram}
+            onGenerateCodegen={() => handleGenerateCodegen()}
+            loading={loading}
+          />
+        )}
+
+        {activeTab === 'codegen' && (
+          <TerminalCodegenView
+            programs={programs}
+            codegen={codegen}
+            selectedProgram={selectedProgram}
+            onSelectProgram={(p) => {
+              setSelectedProgram(p);
+              loadProgramDetail(codebaseId, p);
+            }}
+            onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
+            loading={loading}
+          />
+        )}
       </main>
 
-      {/* Executive Report Modal HUD */}
+      {/* Executive Report Terminal Modal */}
       {showReportModal && report && (
-        <FloatingReportHUD
+        <TerminalReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}
