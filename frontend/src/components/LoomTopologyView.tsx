@@ -117,7 +117,10 @@ const TopologyContent: React.FC<LoomTopologyViewProps> = ({ graphData, onSelectP
   });
 
   useEffect(() => {
-    fitView({ padding: 0.25, duration: 300 });
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.25, duration: 300 });
+    }, 200);
+    return () => clearTimeout(timer);
   }, [fitView, nodes.length]);
 
   const handleNodeClick = (_: any, node: Node) => {
@@ -127,7 +130,7 @@ const TopologyContent: React.FC<LoomTopologyViewProps> = ({ graphData, onSelectP
   };
 
   return (
-    <div className="w-full h-full relative linen-backing overflow-hidden font-sans">
+    <div className="w-full h-full min-h-[600px] relative linen-backing overflow-hidden font-sans">
       {nodes.length === 0 ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0c16] z-20 font-sans">
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 mb-4 animate-pulse">

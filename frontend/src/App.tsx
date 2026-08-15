@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { LoomHeader } from './components/LoomHeader';
-import { LoomTopologyView } from './components/LoomTopologyView';
-import { LoomRiskMatrixView } from './components/LoomRiskMatrixView';
-import { LoomProgramDetailView } from './components/LoomProgramDetailView';
-import { LoomCodegenView } from './components/LoomCodegenView';
-import { LoomReportModal } from './components/LoomReportModal';
+import { ExcavationHeader } from './components/ExcavationHeader';
+import { ExcavationTopologyView } from './components/ExcavationTopologyView';
+import { ExcavationRiskMatrixView } from './components/ExcavationRiskMatrixView';
+import { ExcavationProgramDetailView } from './components/ExcavationProgramDetailView';
+import { ExcavationCodegenView } from './components/ExcavationCodegenView';
+import { ExcavationReportModal } from './components/ExcavationReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_loom_report_${codebaseId}.json`;
+    a.download = `monolith_excavation_report_${codebaseId}.json`;
     a.click();
   };
 
@@ -121,10 +121,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c16] text-slate-100 flex flex-col font-sans">
+    <div className="h-screen w-screen bg-[#0f172a] text-slate-100 flex flex-col overflow-hidden font-sans">
       
-      {/* The Loom Jacquard Punch-Card Header */}
-      <LoomHeader
+      {/* Excavation Header */}
+      <ExcavationHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
@@ -134,10 +134,10 @@ export const App: React.FC = () => {
         selectedProgram={selectedProgram}
       />
 
-      {/* Main Viewport Workspace */}
-      <main className="flex-1 overflow-hidden">
+      {/* Main Viewport Workspace Container with Explicit Height */}
+      <main className="flex-1 w-full h-[calc(100vh-64px)] overflow-hidden relative">
         {activeTab === 'graph' && (
-          <LoomTopologyView
+          <ExcavationTopologyView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
@@ -146,14 +146,14 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'risk' && (
-          <LoomRiskMatrixView
+          <ExcavationRiskMatrixView
             programs={programs}
             onSelectProgram={handleSelectProgram}
           />
         )}
 
         {activeTab === 'detail' && (
-          <LoomProgramDetailView
+          <ExcavationProgramDetailView
             detail={programDetail}
             codegen={codegen}
             onSummarize={handleSummarizeProgram}
@@ -163,7 +163,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'codegen' && (
-          <LoomCodegenView
+          <ExcavationCodegenView
             programs={programs}
             codegen={codegen}
             selectedProgram={selectedProgram}
@@ -179,7 +179,7 @@ export const App: React.FC = () => {
 
       {/* Executive Report Modal */}
       {showReportModal && report && (
-        <LoomReportModal
+        <ExcavationReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}

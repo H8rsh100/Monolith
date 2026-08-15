@@ -3,12 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --loom-bg: #0a0c16;
-  --loom-card: #131930;
-  --loom-border: #232d4e;
-  --loom-gold: #f59e0b;
-  --loom-cyan: #00f0ff;
-  --font-display: 'Cinzel', serif;
+  --vellum-bg: #0f172a;
+  --vellum-card: #1e293b;
+  --vellum-ink: #38bdf8;
+  --font-serif: 'Playfair Display', serif;
   --font-sans: 'Outfit', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -20,7 +18,7 @@
 }
 
 body {
-  background-color: var(--loom-bg);
+  background-color: var(--vellum-bg);
   color: #f8fafc;
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -31,53 +29,46 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-/* Jacquard Linen Backing Weave Grid */
-.linen-backing {
-  background-color: #0a0c16;
+/* Topographic Stratum Layer Grid */
+.topographic-strata {
+  background-color: #0f172a;
   background-image: 
+    radial-gradient(ellipse at 50% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(217, 119, 6, 0.08) 0%, transparent 60%),
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
 }
 
-/* Loom Intersection Card */
-.loom-card {
-  background: rgba(19, 25, 48, 0.95);
+/* Excavation Dig Marker Card */
+.dig-card {
+  background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.loom-card:hover {
-  border-color: #f59e0b;
-  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.25), inset 0 0 20px rgba(245, 158, 11, 0.1);
+.dig-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
   transform: translateY(-2px);
 }
 
-/* Metallic Thread Glow Utilities */
-.gold-glow {
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
-}
-
-.cyan-glow {
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-}
-
-/* React Flow Thread Flowing Animations */
+/* React Flow Contour Lines */
 .react-flow__renderer {
-  background-color: var(--loom-bg) !important;
+  background-color: var(--vellum-bg) !important;
 }
 
 .react-flow__edge-path {
-  stroke-dasharray: 8 4;
-  animation: thread-pull 1.8s linear infinite;
+  stroke-dasharray: 6 6;
+  animation: strata-flow 1.5s linear infinite;
 }
 
-@keyframes thread-pull {
-  from { stroke-dashoffset: 32; }
+@keyframes strata-flow {
+  from { stroke-dashoffset: 24; }
   to { stroke-dashoffset: 0; }
 }
 
@@ -87,16 +78,16 @@ code, pre {
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--loom-bg);
+  background: var(--vellum-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(245, 158, 11, 0.3);
+  background: rgba(56, 189, 248, 0.3);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
+  background: #38bdf8;
 }
