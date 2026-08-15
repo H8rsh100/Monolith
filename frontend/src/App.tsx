@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ConsoleHeader } from './components/ConsoleHeader';
-import { ConsoleGraphView } from './components/ConsoleGraphView';
+import { EnterpriseNavbar } from './components/EnterpriseNavbar';
+import { EnterpriseGraphView } from './components/EnterpriseGraphView';
 import { RiskMatrixView } from './components/RiskMatrixView';
 import { ProgramDetailView } from './components/ProgramDetailView';
 import { CodegenView } from './components/CodegenView';
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_migration_report_${codebaseId}.json`;
+    a.download = `monolith_cloud_report_${codebaseId}.json`;
     a.click();
   };
 
@@ -123,8 +123,8 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       
-      {/* Enterprise Top Navigation Console Header */}
-      <ConsoleHeader
+      {/* Option 3: Enterprise Cloud Console Top Header */}
+      <EnterpriseNavbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       {/* Main Viewport Workspace */}
       <main className="flex-1 overflow-hidden">
         {activeTab === 'graph' && (
-          <ConsoleGraphView
+          <EnterpriseGraphView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}

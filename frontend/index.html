@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monolith - Enterprise COBOL Modernization Engine</title>
+    <title>Monolith - Enterprise Cloud Modernization Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -12,9 +12,10 @@
         theme: {
           extend: {
             colors: {
-              slate: {
-                850: '#111827',
-                950: '#0b0f19',
+              navy: {
+                800: '#1e293b',
+                900: '#0f172a',
+                950: '#0a0f1d'
               }
             },
             fontFamily: {
@@ -27,9 +28,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-sky-500/30 selection:text-sky-200 overflow-hidden">
+  <body class="bg-navy-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-sky-500/30 selection:text-sky-200 overflow-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
