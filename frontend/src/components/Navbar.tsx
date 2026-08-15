@@ -1,5 +1,5 @@
 import React from 'react';
-import { Network, ShieldAlert, Cpu, Code2, Play, RefreshCw } from 'lucide-react';
+import { Network, ShieldAlert, Cpu, Code2, Play, RefreshCw, FileSpreadsheet } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: 'graph' | 'risk' | 'detail' | 'codegen';
@@ -7,6 +7,7 @@ interface NavbarProps {
   codebaseId: string;
   onIngest: () => void;
   onSummarizeAll: () => void;
+  onExportReport: () => void;
   loading: boolean;
   selectedProgram?: string;
 }
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   codebaseId,
   onIngest,
   onSummarizeAll,
+  onExportReport,
   loading,
   selectedProgram
 }) => {
@@ -92,6 +94,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={onExportReport}
+            className="px-3.5 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-xs font-mono font-semibold text-purple-300 transition-all flex items-center gap-2"
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5" />
+            Executive Report
+          </button>
+
           <button
             onClick={onSummarizeAll}
             disabled={loading}
