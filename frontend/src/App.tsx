@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ExpeditionHeader } from './components/ExpeditionHeader';
-import { UnchartedMapView } from './components/UnchartedMapView';
-import { UnchartedRiskMatrixView } from './components/UnchartedRiskMatrixView';
-import { UnchartedProgramDetailView } from './components/UnchartedProgramDetailView';
-import { UnchartedCodegenView } from './components/UnchartedCodegenView';
-import { UnchartedReportModal } from './components/UnchartedReportModal';
+import { VerticalNav } from './components/VerticalNav';
+import { ScanChamberGraph } from './components/ScanChamberGraph';
+import { FloatingProgramDetailHUD } from './components/FloatingProgramDetailHUD';
+import { FloatingRiskTableHUD } from './components/FloatingRiskTableHUD';
+import { FloatingCodegenHUD } from './components/FloatingCodegenHUD';
+import { FloatingReportHUD } from './components/FloatingReportHUD';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
+  const [activeHud, setActiveHud] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
   const [codebaseId, setCodebaseId] = useState<string>('demo-cobol');
   const [graphData, setGraphData] = useState<{ nodes: any[]; edges: any[] }>({ nodes: [], edges: [] });
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
@@ -18,7 +18,29 @@ export const App: React.FC = () => {
   const [report, setReport] = useState<ExecutiveReport | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [fogClearedSet, setFogClearedSet] = useState<Set<string>>(new Set());
+
+  const loadData = async (cid: string) => {
+    try {
+      setLoading(true);
+      const gData = await api.getGraph(cid);
+      if (gData && gData.nodes && gData.nodes.length > 0) {
+        setGraphData(gData);
+        const progs = await api.getPrograms(cid);
+        setPrograms(progs);
+        if (progs.length > 0) {
+          setSelectedProgram(progs[0].programName);
+          loadProgramDetail(cid, progs[0].programName);
+        }
+      } else {
+        await handleIngest();
+      }
+    } catch (e) {
+      console.warn("Auto-ingesting demo codebase...");
+      await handleIngest();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadProgramDetail = async (cid: string, pname: string) => {
     try {
@@ -38,11 +60,6 @@ export const App: React.FC = () => {
       setGraphData(gData);
       const progs = await api.getPrograms(res.codebaseId);
       setPrograms(progs);
-      
-      // Immediately unlock 100% of all settlements and lift fog across the entire codebase!
-      const allNames = progs.map((p) => p.programName);
-      setFogClearedSet(new Set(allNames));
-
       if (progs.length > 0) {
         setSelectedProgram(progs[0].programName);
         loadProgramDetail(res.codebaseId, progs[0].programName);
@@ -54,18 +71,12 @@ export const App: React.FC = () => {
     }
   };
 
-  // Auto-load on mount so the entire codebase and map are 100% unlocked immediately!
-  useEffect(() => {
-    handleIngest();
-  }, []);
-
   const handleSummarizeProgram = async () => {
     if (!selectedProgram) return;
     try {
       setLoading(true);
       await api.summarizeProgram(codebaseId, selectedProgram);
       await loadProgramDetail(codebaseId, selectedProgram);
-      setFogClearedSet((prev) => new Set([...Array.from(prev), selectedProgram]));
     } catch (e) {
       console.error("Summarize failed:", e);
     } finally {
@@ -82,8 +93,6 @@ export const App: React.FC = () => {
       if (selectedProgram) {
         await loadProgramDetail(codebaseId, selectedProgram);
       }
-      const allNames = progs.map((p) => p.programName);
-      setFogClearedSet(new Set(allNames));
     } catch (e) {
       console.error("Summarize all failed:", e);
     } finally {
@@ -124,85 +133,101 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_survey_report_${codebaseId}.json`;
+    a.download = `monolith_autopsy_report_${codebaseId}.json`;
     a.click();
   };
 
   const handleSelectProgram = (pname: string) => {
     setSelectedProgram(pname);
     loadProgramDetail(codebaseId, pname);
-    setActiveTab('detail');
+    setActiveHud('detail');
   };
 
+  useEffect(() => {
+    loadData(codebaseId);
+  }, []);
+
+  const isPaneOpen = activeHud !== 'graph';
+
   return (
-    <div className="h-screen w-screen bg-[#F2EAD8] text-[#233348] flex flex-col overflow-hidden font-sans">
+    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent flex">
       
-      {/* Expedition Header */}
-      <ExpeditionHeader
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
+      {/* Continuous Diagnostic Viewport Scanline Loop */}
+      <div className="scanline-overlay" />
+
+      {/* Left Vertical Spine Navigation Rail */}
+      <VerticalNav
+        activeHud={activeHud}
+        setActiveHud={setActiveHud}
         onOpenReport={handleExportReport}
         onIngest={handleIngest}
         onSummarizeAll={handleSummarizeAll}
         loading={loading}
         selectedProgram={selectedProgram}
-        fogClearedCount={fogClearedSet.size}
-        totalProgramCount={programs.length}
       />
 
-      {/* Main Viewport Workspace Container with Explicit Height */}
-      <main className="flex-1 w-full h-[calc(100vh-64px)] overflow-hidden relative">
-        {activeTab === 'graph' && (
-          <UnchartedMapView
+      {/* Main Dual-Pane Viewport Container */}
+      <main className="flex-1 ml-16 h-full flex overflow-hidden">
+        
+        {/* Left Pane: Permanent Scan Chamber Graph Canvas */}
+        <div className="flex-1 h-full relative transition-all duration-300">
+          <ScanChamberGraph
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
             loading={loading}
-            fogClearedSet={fogClearedSet}
+            activeHud={activeHud}
           />
+        </div>
+
+        {/* Right Pane: In-Flow Side Inspector Panel (Zero Overlap) */}
+        {isPaneOpen && (
+          <div className="w-[520px] lg:w-[600px] h-full transition-all duration-300 z-30 shrink-0">
+            {activeHud === 'detail' && (
+              <FloatingProgramDetailHUD
+                detail={programDetail}
+                codegen={codegen}
+                onSummarize={handleSummarizeProgram}
+                onGenerateCodegen={() => handleGenerateCodegen()}
+                onClose={() => setActiveHud('graph')}
+                loading={loading}
+              />
+            )}
+
+            {activeHud === 'risk' && (
+              <FloatingRiskTableHUD
+                programs={programs}
+                onSelectProgram={handleSelectProgram}
+                onClose={() => setActiveHud('graph')}
+              />
+            )}
+
+            {activeHud === 'codegen' && (
+              <FloatingCodegenHUD
+                programs={programs}
+                codegen={codegen}
+                selectedProgram={selectedProgram}
+                onSelectProgram={(p) => {
+                  setSelectedProgram(p);
+                  loadProgramDetail(codebaseId, p);
+                }}
+                onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
+                onClose={() => setActiveHud('graph')}
+                loading={loading}
+              />
+            )}
+          </div>
         )}
 
-        {activeTab === 'risk' && (
-          <UnchartedRiskMatrixView
-            programs={programs}
-            onSelectProgram={handleSelectProgram}
-          />
-        )}
-
-        {activeTab === 'detail' && (
-          <UnchartedProgramDetailView
-            detail={programDetail}
-            codegen={codegen}
-            onSummarize={handleSummarizeProgram}
-            onGenerateCodegen={() => handleGenerateCodegen()}
-            loading={loading}
-          />
-        )}
-
-        {activeTab === 'codegen' && (
-          <UnchartedCodegenView
-            programs={programs}
-            codegen={codegen}
-            selectedProgram={selectedProgram}
-            onSelectProgram={(p) => {
-              setSelectedProgram(p);
-              loadProgramDetail(codebaseId, p);
-            }}
-            onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
-            loading={loading}
-          />
-        )}
       </main>
 
-      {/* Cartographer Printed Survey Report Modal */}
+      {/* Executive Report Modal HUD */}
       {showReportModal && report && (
-        <UnchartedReportModal
+        <FloatingReportHUD
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}
           onDownload={downloadJsonReport}
-          fogClearedCount={fogClearedSet.size}
-          totalProgramCount={programs.length}
         />
       )}
 
