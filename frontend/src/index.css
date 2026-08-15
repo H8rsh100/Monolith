@@ -3,11 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --crt-bg: #050a05;
-  --crt-green: #00FF66;
-  --crt-amber: #FFB000;
-  --crt-cyan: #00F0FF;
-  --crt-red: #FF3333;
+  --bg-dark: #0b0f19;
+  --bg-card: #141c2e;
+  --border-color: #1e293b;
+  --border-highlight: #334155;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 * {
@@ -17,78 +18,61 @@
 }
 
 body {
-  background-color: var(--crt-bg);
-  color: var(--crt-green);
-  font-family: 'Share Tech Mono', monospace;
+  background-color: var(--bg-dark);
+  color: #f8fafc;
+  font-family: var(--font-sans);
   min-height: 100vh;
   overflow: hidden;
 }
 
-/* CRT Screen Scanlines & Glass Vignette */
-.crt-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: 
-    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-  background-size: 100% 3px, 6px 100%;
-  pointer-events: none;
-  z-index: 9999;
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9);
+code, pre {
+  font-family: var(--font-mono);
 }
 
-/* Phosphor Glow Utilities */
-.text-glow-green {
-  color: #00FF66;
-  text-shadow: 0 0 8px rgba(0, 255, 102, 0.7);
+.glass-panel {
+  background: rgba(20, 28, 46, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
-.text-glow-amber {
-  color: #FFB000;
-  text-shadow: 0 0 8px rgba(255, 176, 0, 0.7);
+.glass-panel-hover:hover {
+  border-color: var(--border-highlight);
+  box-shadow: 0 12px 40px 0 rgba(56, 189, 248, 0.12);
+  transition: all 0.2s ease-in-out;
 }
 
-.text-glow-cyan {
-  color: #00F0FF;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+.risk-badge {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.border-glow-green {
-  border-color: #00FF66;
-  box-shadow: 0 0 15px rgba(0, 255, 102, 0.3), inset 0 0 10px rgba(0, 255, 102, 0.1);
+/* React Flow Styling */
+.react-flow__renderer {
+  background-color: var(--bg-dark) !important;
 }
 
-.border-glow-amber {
-  border-color: #FFB000;
-  box-shadow: 0 0 15px rgba(255, 176, 0, 0.3), inset 0 0 10px rgba(255, 176, 0, 0.1);
+.react-flow__edge-path {
+  stroke-dasharray: 6 6;
+  animation: edge-flow 1.5s linear infinite;
 }
 
-/* Terminal Box Container */
-.terminal-box {
-  background: rgba(5, 15, 5, 0.95);
-  border: 1px solid rgba(0, 255, 102, 0.4);
-  border-radius: 2px;
-  box-shadow: 0 0 20px rgba(0, 255, 102, 0.15), inset 0 0 15px rgba(0, 255, 102, 0.05);
+@keyframes edge-flow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
 }
 
-/* Blinking Terminal Cursor */
-.cursor-block {
-  display: inline-block;
-  width: 8px;
-  height: 15px;
-  background-color: #00FF66;
-  box-shadow: 0 0 8px #00FF66;
-  animation: cursor-blink 0.8s step-end infinite;
-  vertical-align: middle;
-  margin-left: 2px;
-}
-
-@keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+.react-flow__attribution {
+  display: none !important;
 }
 
 /* Custom Scrollbars */
@@ -97,13 +81,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050a05;
-  border-left: 1px solid rgba(0, 255, 102, 0.2);
+  background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 102, 0.4);
+  background: #1e293b;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00FF66;
-  box-shadow: 0 0 10px #00FF66;
+  background: #334155;
 }

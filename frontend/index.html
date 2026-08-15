@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IBM 3270 Mainframe Terminal - Monolith COBOL Intelligence</title>
+    <title>Monolith - Enterprise COBOL Modernization Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -12,16 +12,14 @@
         theme: {
           extend: {
             colors: {
-              crtBg: '#050a05',
-              crtGreen: '#00FF66',
-              crtAmber: '#FFB000',
-              crtCyan: '#00F0FF',
-              crtRed: '#FF3333',
-              crtDarkGreen: '#003311'
+              slate: {
+                850: '#111827',
+                950: '#0b0f19',
+              }
             },
             fontFamily: {
-              terminal: ['"VT323"', 'monospace'],
-              mono: ['"Share Tech Mono"', 'monospace']
+              sans: ['"Inter"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace']
             }
           }
         }
@@ -29,9 +27,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-crtBg text-crtGreen font-mono antialiased min-h-screen overflow-hidden selection:bg-crtGreen selection:text-black">
+  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-sky-500/30 selection:text-sky-200 overflow-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
