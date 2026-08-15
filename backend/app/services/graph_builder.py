@@ -1,113 +1,112 @@
-import networkx as nx
 from typing import List, Dict, Any
+import networkx as nx
 from app.services.parser_client import ProgramAnalysis, JclJob
 
 class GraphBuilder:
     def build_dependency_graph(
         self, programs: List[ProgramAnalysis], jcl_jobs: List[JclJob]
     ) -> nx.DiGraph:
-        G = nx.DiGraph()
+        graph = nx.DiGraph()
 
-        # Add Program Nodes
+        # Add program nodes
         for prog in programs:
-            p_id = f"prog_{prog.programName}"
-            total_complexity = sum(p.cyclomaticComplexity for p in prog.paragraphs)
-            G.add_node(
-                p_id,
-                node_type="program",
+            p_node = f"prog_{prog.programName}"
+            graph.add_node(
+                p_node,
                 label=prog.programName,
-                name=prog.programName,
-                loc=prog.linesOfCode,
-                total_complexity=total_complexity,
-                dynamic_calls=prog.dynamicCalls,
-                sql_count=len(prog.sqlBlocks),
+                nodeType="program",
+                linesOfCode=prog.linesOfCode,
+                dynamicCalls=prog.dynamicCalls
             )
 
-            # Add COPYBOOK edges
+            # Add copybook nodes and edges
             for cpy in prog.copybooks:
-                cpy_id = f"cpy_{cpy}"
-                if not G.has_node(cpy_id):
-                    G.add_node(cpy_id, node_type="copybook", label=cpy, name=cpy)
-                G.add_edge(p_id, cpy_id, relation="COPIES")
+                cpy_node = f"cpy_{cpy}"
+                if not graph.has_node(cpy_node):
+                    graph.add_node(cpy_node, label=cpy, nodeType="copybook")
+                graph.add_edge(p_node, cpy_node, relation="COPIES")
 
-            # Add CALL edges
+            # Add file IO nodes and edges
+            for f_io in prog.fileIO:
+                f_name = f_io.get("name") or "FILE"
+                file_node = f"file_{f_name}"
+                if not graph.has_node(file_node):
+                    graph.add_node(
+                        file_node,
+                        label=f_name,
+                        nodeType="file",
+                        assignTo=f_io.get("assignTo", ""),
+                        mode=f_io.get("mode", "")
+                    )
+                graph.add_edge(p_node, file_node, relation="ACCESSES")
+
+            # Add subprogram calls
             for call_target in prog.calls:
-                target_id = f"prog_{call_target}"
-                if not G.has_node(target_id):
-                    G.add_node(target_id, node_type="program", label=call_target, name=call_target, loc=0, total_complexity=0)
-                G.add_edge(p_id, target_id, relation="CALLS")
+                target_node = f"prog_{call_target}"
+                if not graph.has_node(target_node):
+                    graph.add_node(target_node, label=call_target, nodeType="program", linesOfCode=0)
+                graph.add_edge(p_node, target_node, relation="CALLS")
 
-            # Add File I/O edges
-            for fio in prog.fileIO:
-                file_id = f"file_{fio.name}"
-                if not G.has_node(file_id):
-                    G.add_node(file_id, node_type="file", label=fio.name, name=fio.name, assignTo=fio.assignTo, organization=fio.organization)
-                G.add_edge(p_id, file_id, relation="ACCESSES")
+        # Add JCL jobs and step execution edges
+        for job in jcl_jobs:
+            j_node = f"jcl_{job.jobName}"
+            graph.add_node(j_node, label=job.jobName, nodeType="jcl_job")
+            for step in job.steps:
+                exec_prog = step.get("execProgram")
+                if exec_prog:
+                    target_prog = f"prog_{exec_prog}"
+                    if not graph.has_node(target_prog):
+                        graph.add_node(target_prog, label=exec_prog, nodeType="program", linesOfCode=0)
+                    graph.add_edge(j_node, target_prog, relation="EXECUTES")
 
-        # Add JCL Job Nodes & Edges
-        for jcl in jcl_jobs:
-            job_id = f"jcl_{jcl.jobName}"
-            G.add_node(job_id, node_type="jcl_job", label=jcl.jobName, name=jcl.jobName, step_count=len(jcl.steps))
-            for step in jcl.steps:
-                prog_id = f"prog_{step.program}"
-                if not G.has_node(prog_id):
-                    G.add_node(prog_id, node_type="program", label=step.program, name=step.program, loc=0, total_complexity=0)
-                G.add_edge(job_id, prog_id, relation="EXECUTES", step=step.stepName)
+        return graph
 
-        return G
-
-    def to_react_flow_json(self, G: nx.DiGraph, risk_scores: Dict[str, Any] = None) -> Dict[str, Any]:
-        risk_scores = risk_scores or {}
+    def to_react_flow_json(self, graph: nx.DiGraph, risk_scores: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
         nodes = []
         edges = []
 
-        # Position layout offsets
-        type_y_map = {
-            "jcl_job": 50,
-            "program": 200,
-            "copybook": 380,
-            "file": 380,
-        }
+        # Layered hierarchy assignment
+        layers = {"jcl_job": 0, "program": 1, "copybook": 2, "file": 3}
+        layer_counts = {0: 0, 1: 0, 2: 0, 3: 0}
 
-        counts = {"jcl_job": 0, "program": 0, "copybook": 0, "file": 0}
+        y_gap = 260
+        x_gap = 380
 
-        for n, attrs in G.nodes(data=True):
-            ntype = attrs.get("node_type", "program")
-            name = attrs.get("name", n)
-            idx = counts.get(ntype, 0)
-            counts[ntype] = idx + 1
+        for node_id, data in graph.nodes(data=True):
+            ntype = data.get("nodeType", "program")
+            l_idx = layers.get(ntype, 1)
+            col_idx = layer_counts[l_idx]
+            layer_counts[l_idx] += 1
 
-            x_pos = 100 + (idx * 220)
-            y_pos = type_y_map.get(ntype, 200)
+            x_pos = 100 + col_idx * x_gap
+            y_pos = 80 + l_idx * y_gap
 
-            risk_info = risk_scores.get(name, {})
+            risk_info = risk_scores.get(data.get("label", ""), {})
 
             nodes.append({
-                "id": n,
+                "id": node_id,
                 "type": ntype,
                 "position": {"x": x_pos, "y": y_pos},
                 "data": {
-                    "label": attrs.get("label", n),
-                    "name": name,
+                    "label": data.get("label", node_id),
+                    "name": data.get("label", node_id),
                     "nodeType": ntype,
-                    "loc": attrs.get("loc", 0),
-                    "totalComplexity": attrs.get("total_complexity", 0),
                     "riskScore": risk_info.get("score", 0),
                     "riskBucket": risk_info.get("bucket", "Low"),
                     "riskColor": risk_info.get("color", "#10b981"),
+                    "linesOfCode": data.get("linesOfCode", 0)
                 }
             })
 
-        edge_counter = 0
-        for src, tgt, attrs in G.edges(data=True):
-            edge_counter += 1
+        for u, v, data in graph.edges(data=True):
+            relation = data.get("relation", "DEPENDS")
             edges.append({
-                "id": f"edge_{src}_{tgt}_{edge_counter}",
-                "source": src,
-                "target": tgt,
-                "label": attrs.get("relation", ""),
-                "animated": attrs.get("relation") in ["CALLS", "EXECUTES"],
-                "style": {"stroke": "#64748b", "strokeWidth": 2}
+                "id": f"e_{u}_{v}",
+                "source": u,
+                "target": v,
+                "label": relation,
+                "animated": True,
+                "style": {"stroke": "#2DE2E6", "strokeWidth": 2}
             })
 
         return {"nodes": nodes, "edges": edges}

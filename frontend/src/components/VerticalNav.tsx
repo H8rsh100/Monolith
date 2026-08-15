@@ -30,7 +30,7 @@ export const VerticalNav: React.FC<VerticalNavProps> = ({
   const activeIndex = items.findIndex((item) => item.id === activeHud);
 
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-16 z-50 flex flex-col items-center justify-between py-5 bg-void/90 backdrop-blur-xl border-r border-cyanAccent/20 shadow-[5px_0_30px_rgba(45,226,230,0.1)]">
+    <aside className="fixed top-0 left-0 bottom-0 w-16 z-50 flex flex-col items-center justify-between py-5 bg-void/95 backdrop-blur-xl border-r border-cyanAccent/20 shadow-[5px_0_30px_rgba(45,226,230,0.1)]">
       
       {/* Brand Icon */}
       <div className="flex flex-col items-center gap-1">
@@ -72,8 +72,8 @@ export const VerticalNav: React.FC<VerticalNavProps> = ({
             >
               <Icon className="h-5 w-5" />
               
-              {/* Tooltip Label */}
-              <div className="absolute left-16 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md glass-hud text-xs font-mono font-bold text-cyanAccent opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+              {/* Tooltip Label (Clean Z-60 overlay) */}
+              <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded glass-hud text-[11px] font-mono font-bold text-cyanAccent opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-2xl z-50">
                 {item.label}
               </div>
             </button>
@@ -89,7 +89,7 @@ export const VerticalNav: React.FC<VerticalNavProps> = ({
           title="Executive Autopsy Audit Report"
         >
           <FileSpreadsheet className="h-5 w-5" />
-          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md glass-hud text-xs font-mono font-bold text-purple-300 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded glass-hud text-[11px] font-mono font-bold text-purple-300 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-2xl z-50">
             Executive Report
           </div>
         </button>
@@ -101,7 +101,7 @@ export const VerticalNav: React.FC<VerticalNavProps> = ({
           title="Extract All Business Specs"
         >
           <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md glass-hud text-xs font-mono font-bold text-slate-200 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded glass-hud text-[11px] font-mono font-bold text-slate-200 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-2xl z-50">
             Extract Specs
           </div>
         </button>
@@ -113,7 +113,7 @@ export const VerticalNav: React.FC<VerticalNavProps> = ({
           title="Ingest Demo Codebase"
         >
           <Play className="h-5 w-5 fill-current" />
-          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md glass-hud text-xs font-mono font-bold text-emerald-300 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded glass-hud text-[11px] font-mono font-bold text-emerald-300 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-2xl z-50">
             Ingest Demo
           </div>
         </button>

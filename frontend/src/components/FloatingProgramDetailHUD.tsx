@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProgramDetail, CodegenResult } from '../api';
 import { getThermalColor } from '../utils/thermalColor';
-import { X, Sparkles, Code, Terminal, Copy, Table, Shield, CheckCircle, ArrowRight, AlertTriangle } from 'lucide-react';
+import { X, Sparkles, Code, Table, Shield, CheckCircle, ArrowRight, AlertTriangle, Minimize2, Maximize2, Cpu } from 'lucide-react';
 
 interface FloatingProgramDetailHUDProps {
   detail: ProgramDetail | null;
@@ -22,6 +22,7 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
 }) => {
   const [activeTab, setActiveTab] = useState<'spec' | 'schema' | 'risk' | 'codegen'>('spec');
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
   if (!detail) return null;
 
@@ -33,6 +34,25 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
+
+  if (isMinimized) {
+    return (
+      <div className="fixed top-6 right-6 z-40 px-4 py-2 glass-hud flex items-center gap-3 border-cyanAccent/40 shadow-2xl font-mono text-xs text-cyanAccent">
+        <Cpu className="h-4 w-4 text-cyanAccent animate-pulse" />
+        <span className="font-bold uppercase tracking-wider">Program HUD: {program.programName}.cbl (Collapsed)</span>
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="p-1 text-slate-400 hover:text-cyanAccent rounded"
+          title="Expand HUD"
+        >
+          <Maximize2 className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={onClose} className="p-1 text-slate-400 hover:text-red-400 rounded" title="Close HUD">
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed top-6 right-6 bottom-6 w-[560px] z-40 glass-hud flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] border-cyanAccent/30 overflow-hidden font-sans animate-in slide-in-from-right duration-300">
@@ -58,12 +78,18 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
           </p>
         </div>
 
-        <button
-          onClick={onClose}
-          className="text-slate-400 hover:text-cyanAccent p-1 rounded hover:bg-slate-900/60 transition-colors"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsMinimized(true)}
+            className="text-slate-400 hover:text-cyanAccent p-1 rounded"
+            title="Minimize HUD"
+          >
+            <Minimize2 className="h-4 w-4" />
+          </button>
+          <button onClick={onClose} className="text-slate-400 hover:text-red-400 p-1 rounded" title="Close HUD">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Tabs Switcher */}
