@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { IOSNavbar } from './components/IOSNavbar';
-import { IOSTopologyView } from './components/IOSTopologyView';
-import { IOSRiskMatrixView } from './components/IOSRiskMatrixView';
-import { IOSProgramDetailView } from './components/IOSProgramDetailView';
-import { IOSCodegenView } from './components/IOSCodegenView';
-import { IOSReportModal } from './components/IOSReportModal';
+import { LoomHeader } from './components/LoomHeader';
+import { LoomTopologyView } from './components/LoomTopologyView';
+import { LoomRiskMatrixView } from './components/LoomRiskMatrixView';
+import { LoomProgramDetailView } from './components/LoomProgramDetailView';
+import { LoomCodegenView } from './components/LoomCodegenView';
+import { LoomReportModal } from './components/LoomReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_ios_report_${codebaseId}.json`;
+    a.download = `monolith_loom_report_${codebaseId}.json`;
     a.click();
   };
 
@@ -121,10 +121,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0a0c16] text-slate-100 flex flex-col font-sans">
       
-      {/* Apple iOS Translucent Navigation Bar */}
-      <IOSNavbar
+      {/* The Loom Jacquard Punch-Card Header */}
+      <LoomHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       {/* Main Viewport Workspace */}
       <main className="flex-1 overflow-hidden">
         {activeTab === 'graph' && (
-          <IOSTopologyView
+          <LoomTopologyView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
@@ -146,14 +146,14 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'risk' && (
-          <IOSRiskMatrixView
+          <LoomRiskMatrixView
             programs={programs}
             onSelectProgram={handleSelectProgram}
           />
         )}
 
         {activeTab === 'detail' && (
-          <IOSProgramDetailView
+          <LoomProgramDetailView
             detail={programDetail}
             codegen={codegen}
             onSummarize={handleSummarizeProgram}
@@ -163,7 +163,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'codegen' && (
-          <IOSCodegenView
+          <LoomCodegenView
             programs={programs}
             codegen={codegen}
             selectedProgram={selectedProgram}
@@ -179,7 +179,7 @@ export const App: React.FC = () => {
 
       {/* Executive Report Modal */}
       {showReportModal && report && (
-        <IOSReportModal
+        <LoomReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}

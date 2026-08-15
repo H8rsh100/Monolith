@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --apple-bg: #000000;
-  --apple-card: #1c1c1e;
-  --apple-border: rgba(255, 255, 255, 0.12);
-  --apple-blue: #007AFF;
-  --apple-green: #34C759;
-  --apple-purple: #AF52DE;
-  --font-sans: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
-  --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
+  --loom-bg: #0a0c16;
+  --loom-card: #131930;
+  --loom-border: #232d4e;
+  --loom-gold: #f59e0b;
+  --loom-cyan: #00f0ff;
+  --font-display: 'Cinzel', serif;
+  --font-sans: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 * {
@@ -20,7 +20,7 @@
 }
 
 body {
-  background-color: var(--apple-bg);
+  background-color: var(--loom-bg);
   color: #f8fafc;
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -31,42 +31,53 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-/* Apple iOS Translucent Vibrancy Frosted Glass */
-.ios-glass {
-  background: rgba(28, 28, 30, 0.75);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid var(--apple-border);
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+/* Jacquard Linen Backing Weave Grid */
+.linen-backing {
+  background-color: #0a0c16;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-.ios-glass-hover:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 15px 50px rgba(0, 122, 255, 0.15);
+/* Loom Intersection Card */
+.loom-card {
+  background: rgba(19, 25, 48, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.loom-card:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.25), inset 0 0 20px rgba(245, 158, 11, 0.1);
   transform: translateY(-2px);
 }
 
-.ios-card {
-  background: #1c1c1e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+/* Metallic Thread Glow Utilities */
+.gold-glow {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
 }
 
-/* React Flow Canvas Edge Animation */
+.cyan-glow {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+
+/* React Flow Thread Flowing Animations */
 .react-flow__renderer {
-  background-color: var(--apple-bg) !important;
+  background-color: var(--loom-bg) !important;
 }
 
 .react-flow__edge-path {
-  stroke-dasharray: 6 6;
-  animation: edge-flow 1.5s linear infinite;
+  stroke-dasharray: 8 4;
+  animation: thread-pull 1.8s linear infinite;
 }
 
-@keyframes edge-flow {
-  from { stroke-dashoffset: 24; }
+@keyframes thread-pull {
+  from { stroke-dashoffset: 32; }
   to { stroke-dashoffset: 0; }
 }
 
@@ -74,18 +85,18 @@ code, pre {
   display: none !important;
 }
 
-/* Apple Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--apple-bg);
+  background: var(--loom-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--apple-blue);
+  background: #f59e0b;
 }
