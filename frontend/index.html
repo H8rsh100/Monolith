@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Excavation - COBOL Geological Dig Site Engine</title>
+    <title>Monolith - COBOL Geological Excavation Survey</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
-        darkMode: 'class',
         theme: {
           extend: {
             colors: {
               vellum: {
-                bg: '#f7f4eb',
-                darkBg: '#0f172a',
-                card: '#1e293b',
-                ink: '#0f386b',
-                amber: '#d97706',
-                blue: '#2563eb',
-                emerald: '#059669'
+                base: '#EDE6D6',
+                ink: '#1B2A3A',
+                inkBorder: 'rgba(27, 42, 58, 0.4)',
+                band1: '#E4D9BC',
+                band2: '#C9B896',
+                band3: '#A8926B',
+                band4: '#846D49',
+                band5: '#5C4A30',
+                rust: '#A8462E',
+                ochre: '#B8862E'
               }
             },
             fontFamily: {
-              serif: ['"Playfair Display"', 'serif'],
-              sans: ['"Outfit"', 'sans-serif'],
+              serif: ['"Fraunces"', 'serif'],
+              sans: ['"Inter"', 'sans-serif'],
               mono: ['"JetBrains Mono"', 'monospace']
             }
           }
@@ -33,9 +35,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0f172a] text-slate-100 font-sans antialiased min-h-screen selection:bg-amber-500/30 selection:text-amber-200 overflow-hidden">
+  <body class="bg-[#EDE6D6] text-[#1B2A3A] font-sans antialiased min-h-screen selection:bg-[#C9B896] selection:text-[#1B2A3A] overflow-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

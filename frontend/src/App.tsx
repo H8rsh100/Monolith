@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ExcavationHeader } from './components/ExcavationHeader';
-import { ExcavationTopologyView } from './components/ExcavationTopologyView';
-import { ExcavationRiskMatrixView } from './components/ExcavationRiskMatrixView';
-import { ExcavationProgramDetailView } from './components/ExcavationProgramDetailView';
-import { ExcavationCodegenView } from './components/ExcavationCodegenView';
-import { ExcavationReportModal } from './components/ExcavationReportModal';
+import { SurveyorHeader } from './components/SurveyorHeader';
+import { StrataGraphView } from './components/StrataGraphView';
+import { StrataRiskMatrixView } from './components/StrataRiskMatrixView';
+import { StrataProgramDetailView } from './components/StrataProgramDetailView';
+import { StrataCodegenView } from './components/StrataCodegenView';
+import { StrataReportModal } from './components/StrataReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_excavation_report_${codebaseId}.json`;
+    a.download = `monolith_survey_report_${codebaseId}.json`;
     a.click();
   };
 
@@ -121,10 +121,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-[#0f172a] text-slate-100 flex flex-col overflow-hidden font-sans">
+    <div className="h-screen w-screen bg-[#EDE6D6] text-[#1B2A3A] flex flex-col overflow-hidden font-sans">
       
-      {/* Excavation Header */}
-      <ExcavationHeader
+      {/* Surveyor Field Notebook Header */}
+      <SurveyorHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       {/* Main Viewport Workspace Container with Explicit Height */}
       <main className="flex-1 w-full h-[calc(100vh-64px)] overflow-hidden relative">
         {activeTab === 'graph' && (
-          <ExcavationTopologyView
+          <StrataGraphView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
@@ -146,14 +146,14 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'risk' && (
-          <ExcavationRiskMatrixView
+          <StrataRiskMatrixView
             programs={programs}
             onSelectProgram={handleSelectProgram}
           />
         )}
 
         {activeTab === 'detail' && (
-          <ExcavationProgramDetailView
+          <StrataProgramDetailView
             detail={programDetail}
             codegen={codegen}
             onSummarize={handleSummarizeProgram}
@@ -163,7 +163,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'codegen' && (
-          <ExcavationCodegenView
+          <StrataCodegenView
             programs={programs}
             codegen={codegen}
             selectedProgram={selectedProgram}
@@ -177,9 +177,9 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Executive Report Modal */}
+      {/* Printed Survey Report Modal */}
       {showReportModal && report && (
-        <ExcavationReportModal
+        <StrataReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}

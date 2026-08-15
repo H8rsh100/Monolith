@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --vellum-bg: #0f172a;
-  --vellum-card: #1e293b;
-  --vellum-ink: #38bdf8;
-  --font-serif: 'Playfair Display', serif;
-  --font-sans: 'Outfit', sans-serif;
+  --vellum-base: #EDE6D6;
+  --vellum-ink: #1B2A3A;
+  --vellum-border: rgba(27, 42, 58, 0.4);
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
@@ -18,8 +18,8 @@
 }
 
 body {
-  background-color: var(--vellum-bg);
-  color: #f8fafc;
+  background-color: var(--vellum-base);
+  color: var(--vellum-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
   overflow: hidden;
@@ -29,65 +29,81 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-/* Topographic Stratum Layer Grid */
-.topographic-strata {
-  background-color: #0f172a;
+/* Aged Vellum Paper Texture */
+.vellum-bg {
+  background-color: #EDE6D6;
   background-image: 
-    radial-gradient(ellipse at 50% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 80%, rgba(217, 119, 6, 0.08) 0%, transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    radial-gradient(ellipse at 30% 20%, rgba(201, 184, 150, 0.25) 0%, transparent 70%),
+    radial-gradient(ellipse at 70% 80%, rgba(132, 109, 73, 0.15) 0%, transparent 70%),
+    linear-gradient(rgba(27, 42, 58, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 42, 58, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
 }
 
-/* Excavation Dig Marker Card */
-.dig-card {
-  background: rgba(30, 41, 59, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Technical Survey Document Card Treatment */
+.survey-card {
+  background: rgba(237, 230, 214, 0.85);
+  border: 1px solid rgba(27, 42, 58, 0.4);
+  border-radius: 2px;
+  box-shadow: none;
 }
 
-.dig-card:hover {
-  border-color: #38bdf8;
-  box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
-  transform: translateY(-2px);
+.survey-card-solid {
+  background: #E4D9BC;
+  border: 1px solid #1B2A3A;
+  border-radius: 2px;
 }
 
-/* React Flow Contour Lines */
+/* Surveyor Field Notebook Index Tab */
+.field-tab {
+  background: #C9B896;
+  border: 1px solid #1B2A3A;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  color: #1B2A3A;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.15s ease-in-out;
+}
+
+.field-tab-active {
+  background: #EDE6D6;
+  border-bottom: 2px solid #EDE6D6;
+  font-weight: 700;
+}
+
+/* React Flow Linework Edge Styling */
 .react-flow__renderer {
-  background-color: var(--vellum-bg) !important;
+  background-color: transparent !important;
 }
 
 .react-flow__edge-path {
-  stroke-dasharray: 6 6;
-  animation: strata-flow 1.5s linear infinite;
-}
-
-@keyframes strata-flow {
-  from { stroke-dashoffset: 24; }
-  to { stroke-dashoffset: 0; }
+  stroke: #1B2A3A;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
 }
 
 .react-flow__attribution {
   display: none !important;
 }
 
-/* Custom Scrollbars */
+/* Custom Surveyor Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--vellum-bg);
+  background: #EDE6D6;
+  border-left: 1px solid rgba(27, 42, 58, 0.3);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
-  border-radius: 4px;
+  background: #A8926B;
+  border-radius: 1px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #38bdf8;
+  background: #1B2A3A;
 }
