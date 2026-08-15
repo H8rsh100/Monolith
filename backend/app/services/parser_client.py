@@ -20,6 +20,7 @@ class FileIOInfo(BaseModel):
 class SqlBlockInfo(BaseModel):
     type: str = "SQL"
     rawText: str
+    crudType: str = "READ"
     targetTables: List[str] = Field(default_factory=list)
 
 class DataFieldInfo(BaseModel):
@@ -27,6 +28,7 @@ class DataFieldInfo(BaseModel):
     name: str
     picClause: str = ""
     redefines: str = ""
+    conditionValues: List[str] = Field(default_factory=list)
 
 class ProgramAnalysis(BaseModel):
     programName: str
@@ -52,6 +54,17 @@ class JclStep(BaseModel):
 class JclJob(BaseModel):
     jobName: str
     steps: List[JclStep] = Field(default_factory=list)
+
+
+def classify_crud(sql_text: str) -> str:
+    upper = sql_text.upper()
+    if "INSERT" in upper or "WRITE" in upper:
+        return "WRITE"
+    elif "UPDATE" in upper or "SET" in upper:
+        return "UPDATE"
+    elif "DELETE" in upper or "DROP" in upper:
+        return "DELETE"
+    return "READ"
 
 
 class ParserClient:
@@ -85,6 +98,8 @@ class ParserClient:
                         with open(fpath, "r", encoding="utf-8") as f:
                             data = json.load(f)
                             prog = ProgramAnalysis(**data)
+                            for sb in prog.sqlBlocks:
+                                sb.crudType = classify_crud(sb.rawText)
                             cbl_path = os.path.join(codebase_dir, f"{prog.programName}.cbl")
                             if os.path.exists(cbl_path):
                                 with open(cbl_path, "r", encoding="utf-8", errors="ignore") as cbl_file:
@@ -145,14 +160,19 @@ class ParserClient:
         for sql in re.finditer(r"(?i)EXEC\s+SQL\s+(.*?)\s+END-EXEC", content, re.DOTALL):
             raw = sql.group(1).strip()
             tables = re.findall(r"(?i)\b(?:FROM|INTO|UPDATE|JOIN)\s+([A-Z0-9_]+)", raw)
-            sql_blocks.append(SqlBlockInfo(type="SQL", rawText=raw, targetTables=list(set(tables))))
+            crud = classify_crud(raw)
+            sql_blocks.append(SqlBlockInfo(type="SQL", rawText=raw, crudType=crud, targetTables=list(set(tables))))
 
         for cics in re.finditer(r"(?i)EXEC\s+CICS\s+(.*?)\s+END-EXEC", content, re.DOTALL):
-            sql_blocks.append(SqlBlockInfo(type="CICS", rawText=cics.group(1).strip()))
+            raw_cics = cics.group(1).strip()
+            crud = classify_crud(raw_cics)
+            sql_blocks.append(SqlBlockInfo(type="CICS", rawText=raw_cics, crudType=crud, targetTables=[]))
 
         data_fields = []
-        for df in re.finditer(r"(?i)^\s*01\s+([A-Z0-9_-]+)(?:\s+REDEFINES\s+([A-Z0-9_-]+))?(?:\s+PIC\s+([A-Z0-9\(\)\.V]+))?", content, re.MULTILINE):
-            data_fields.append(DataFieldInfo(name=df.group(1), picClause=df.group(3) or "", redefines=df.group(2) or ""))
+        for df in re.finditer(r"(?i)^\s*(01|05|77|88)\s+([A-Z0-9_-]+)(?:\s+REDEFINES\s+([A-Z0-9_-]+))?(?:\s+PIC\s+([A-Z0-9\(\)\.V]+))?(?:\s+VALUE\s+[\"']?([^\"'\s\.]+))?", content, re.MULTILINE):
+            val = df.group(5)
+            c_vals = [val] if val else []
+            data_fields.append(DataFieldInfo(level=df.group(1), name=df.group(2), picClause=df.group(4) or "", redefines=df.group(3) or "", conditionValues=c_vals))
 
         paragraphs = []
         proc_match = re.search(r"(?i)PROCEDURE DIVISION", content)
