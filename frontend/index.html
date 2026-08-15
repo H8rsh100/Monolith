@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monolith - Enterprise Cloud Modernization Console</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Monolith - COBOL Modernization Studio (Apple iOS Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -12,15 +12,21 @@
         theme: {
           extend: {
             colors: {
-              navy: {
-                800: '#1e293b',
-                900: '#0f172a',
-                950: '#0a0f1d'
+              apple: {
+                bg: '#000000',
+                card: '#1c1c1e',
+                border: 'rgba(255, 255, 255, 0.12)',
+                blue: '#007AFF',
+                green: '#34C759',
+                orange: '#FF9500',
+                red: '#FF3B30',
+                purple: '#AF52DE',
+                gray: '#2c2c2e'
               }
             },
             fontFamily: {
-              sans: ['"Inter"', 'sans-serif'],
-              mono: ['"JetBrains Mono"', 'monospace']
+              sans: ['"-apple-system"', '"SF Pro Display"', '"SF Pro Text"', '"Inter"', 'sans-serif'],
+              mono: ['"SF Mono"', '"JetBrains Mono"', 'monospace']
             }
           }
         }
@@ -28,9 +34,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-navy-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-sky-500/30 selection:text-sky-200 overflow-hidden">
+  <body class="bg-black text-slate-100 font-sans antialiased min-h-screen selection:bg-blue-500/30 selection:text-blue-200 overflow-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

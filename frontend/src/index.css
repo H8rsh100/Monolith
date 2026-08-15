@@ -3,11 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg-navy: #0a0f1d;
-  --bg-card: #131c2e;
-  --border-navy: #1e293b;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --apple-bg: #000000;
+  --apple-card: #1c1c1e;
+  --apple-border: rgba(255, 255, 255, 0.12);
+  --apple-blue: #007AFF;
+  --apple-green: #34C759;
+  --apple-purple: #AF52DE;
+  --font-sans: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
 }
 
 * {
@@ -17,7 +20,7 @@
 }
 
 body {
-  background-color: var(--bg-navy);
+  background-color: var(--apple-bg);
   color: #f8fafc;
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -28,24 +31,33 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-.console-card {
-  background: rgba(19, 28, 46, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-navy);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+/* Apple iOS Translucent Vibrancy Frosted Glass */
+.ios-glass {
+  background: rgba(28, 28, 30, 0.75);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--apple-border);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.console-card-hover:hover {
-  border-color: #334155;
-  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.12);
-  transition: all 0.2s ease-in-out;
+.ios-glass-hover:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 15px 50px rgba(0, 122, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.ios-card {
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* React Flow Canvas Edge Animation */
 .react-flow__renderer {
-  background-color: var(--bg-navy) !important;
+  background-color: var(--apple-bg) !important;
 }
 
 .react-flow__edge-path {
@@ -62,18 +74,18 @@ code, pre {
   display: none !important;
 }
 
-/* Custom Scrollbars */
+/* Apple Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-navy);
+  background: var(--apple-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #38bdf8;
+  background: var(--apple-blue);
 }
