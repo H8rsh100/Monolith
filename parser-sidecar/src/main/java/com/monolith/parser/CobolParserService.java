@@ -21,7 +21,7 @@ public class CobolParserService {
     private static final Pattern EXEC_SQL_PATTERN = Pattern.compile("(?i)EXEC\\s+SQL\\s+(.*?)\\s+END-EXEC", Pattern.DOTALL);
     private static final Pattern EXEC_CICS_PATTERN = Pattern.compile("(?i)EXEC\\s+CICS\\s+(.*?)\\s+END-EXEC", Pattern.DOTALL);
     private static final Pattern SQL_TABLE_PATTERN = Pattern.compile("(?i)\\b(?:FROM|INTO|UPDATE|JOIN)\\s+([A-Z0-9_]+)");
-    private static final Pattern DATA_01_PATTERN = Pattern.compile("(?i)^\\s*01\\s+([A-Z0-9_-]+)(?:\\s+REDEFINES\\s+([A-Z0-9_-]+))?(?:\\s+PIC\\s+([A-Z0-9\\(\\)\\.V]+))?", Pattern.MULTILINE);
+    private static final Pattern DATA_ALL_PATTERN = Pattern.compile("(?i)^\\s*(01|05|77|88)\\s+([A-Z0-9_-]+)(?:\\s+REDEFINES\\s+([A-Z0-9_-]+))?(?:\\s+PIC\\s+([A-Z0-9\\(\\)\\.V]+))?(?:\\s+VALUE\\s+[\"']?([^\"'\\s\\.]+))?", Pattern.MULTILINE);
     private static final Pattern PARAGRAPH_HEADER_PATTERN = Pattern.compile("(?i)^\\s*([A-Z0-9_-]+)\\.\\s*$", Pattern.MULTILINE);
 
     public ProgramAnalysis parseCobolFile(File cobolFile, File copybookDir) throws IOException {
@@ -112,14 +112,20 @@ public class CobolParserService {
         }
         analysis.setSqlBlocks(sqlBlocks);
 
-        // Data Division 01 Level Layouts
+        // Data Division Layouts (01, 05, 77, 88 levels)
         List<DataFieldInfo> dataFields = new ArrayList<>();
-        Matcher dataMatcher = DATA_01_PATTERN.matcher(content);
+        Matcher dataMatcher = DATA_ALL_PATTERN.matcher(content);
         while (dataMatcher.find()) {
-            String fName = dataMatcher.group(1);
-            String redefines = dataMatcher.group(2);
-            String pic = dataMatcher.group(3);
-            dataFields.add(new DataFieldInfo("01", fName, pic != null ? pic : "", redefines != null ? redefines : ""));
+            String lvl = dataMatcher.group(1);
+            String fName = dataMatcher.group(2);
+            String redefines = dataMatcher.group(3);
+            String pic = dataMatcher.group(4);
+            String val = dataMatcher.group(5);
+            DataFieldInfo field = new DataFieldInfo(lvl, fName, pic != null ? pic : "", redefines != null ? redefines : "");
+            if (val != null && !val.isEmpty()) {
+                field.getConditionValues().add(val);
+            }
+            dataFields.add(field);
         }
         analysis.setDataDivision(dataFields);
 

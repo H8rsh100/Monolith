@@ -1,18 +1,22 @@
 package com.monolith.parser.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataFieldInfo {
     private String level;
     private String name;
     private String picClause;
     private String redefines;
+    private List<String> conditionValues = new ArrayList<>();
 
     public DataFieldInfo() {}
 
     public DataFieldInfo(String level, String name, String picClause, String redefines) {
         this.level = level;
         this.name = name;
-        this.picClause = picClause;
-        this.redefines = redefines;
+        this.picClause = picClause != null ? picClause : "";
+        this.redefines = redefines != null ? redefines : "";
     }
 
     public String getLevel() { return level; }
@@ -26,4 +30,7 @@ public class DataFieldInfo {
 
     public String getRedefines() { return redefines; }
     public void setRedefines(String redefines) { this.redefines = redefines; }
+
+    public List<String> getConditionValues() { return conditionValues; }
+    public void setConditionValues(List<String> conditionValues) { this.conditionValues = conditionValues; }
 }
