@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExpeditionHeader } from './components/ExpeditionHeader';
 import { UnchartedMapView } from './components/UnchartedMapView';
 import { UnchartedRiskMatrixView } from './components/UnchartedRiskMatrixView';
@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [report, setReport] = useState<ExecutiveReport | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [fogClearedSet, setFogClearedSet] = useState<Set<string>>(new Set(['CUSTMAIN']));
+  const [fogClearedSet, setFogClearedSet] = useState<Set<string>>(new Set());
 
   const loadProgramDetail = async (cid: string, pname: string) => {
     try {
@@ -39,10 +39,11 @@ export const App: React.FC = () => {
       const progs = await api.getPrograms(res.codebaseId);
       setPrograms(progs);
       
-      // Initially clear fog for the selected program, leaving others fog shrouded
+      // Immediately unlock 100% of all settlements and lift fog across the entire codebase!
+      const allNames = progs.map((p) => p.programName);
+      setFogClearedSet(new Set(allNames));
+
       if (progs.length > 0) {
-        const initialSet = new Set<string>([progs[0].programName]);
-        setFogClearedSet(initialSet);
         setSelectedProgram(progs[0].programName);
         loadProgramDetail(res.codebaseId, progs[0].programName);
       }
@@ -53,14 +54,17 @@ export const App: React.FC = () => {
     }
   };
 
+  // Auto-load on mount so the entire codebase and map are 100% unlocked immediately!
+  useEffect(() => {
+    handleIngest();
+  }, []);
+
   const handleSummarizeProgram = async () => {
     if (!selectedProgram) return;
     try {
       setLoading(true);
       await api.summarizeProgram(codebaseId, selectedProgram);
       await loadProgramDetail(codebaseId, selectedProgram);
-      
-      // Lift fog for this settlement!
       setFogClearedSet((prev) => new Set([...Array.from(prev), selectedProgram]));
     } catch (e) {
       console.error("Summarize failed:", e);
@@ -78,8 +82,6 @@ export const App: React.FC = () => {
       if (selectedProgram) {
         await loadProgramDetail(codebaseId, selectedProgram);
       }
-      
-      // Lift fog for ALL settlements in the codebase!
       const allNames = progs.map((p) => p.programName);
       setFogClearedSet(new Set(allNames));
     } catch (e) {

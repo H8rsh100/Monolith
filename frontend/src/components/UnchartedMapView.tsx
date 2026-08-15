@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -11,7 +11,7 @@ import {
   ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { MapPin, Compass, Shield, Maximize2, Lock, Unlock, Castle, Route } from 'lucide-react';
+import { MapPin, Compass, Shield, Maximize2, Lock, Unlock, Castle, Route, RefreshCw } from 'lucide-react';
 
 interface UnchartedMapViewProps {
   graphData: { nodes: any[]; edges: any[] };
@@ -116,7 +116,7 @@ const MapContent: React.FC<UnchartedMapViewProps> = ({ graphData, onSelectProgra
 
   const nodes: Node[] = (graphData.nodes || []).map((n) => {
     const pname = (n.data?.name || n.id || '').toUpperCase();
-    const isCleared = fogClearedSet.has(pname);
+    const isCleared = fogClearedSet.has(pname) || fogClearedSet.size === 0;
 
     return {
       ...n,
@@ -139,6 +139,12 @@ const MapContent: React.FC<UnchartedMapViewProps> = ({ graphData, onSelectProgra
   }));
 
   useEffect(() => {
+    if (nodes.length === 0 && !loading) {
+      onIngest();
+    }
+  }, [nodes.length, loading, onIngest]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fitView({ padding: 0.2, duration: 400 });
     }, 200);
@@ -155,23 +161,16 @@ const MapContent: React.FC<UnchartedMapViewProps> = ({ graphData, onSelectProgra
     <div className="w-full h-full min-h-[650px] relative parchment-bg overflow-hidden font-sans select-none">
       
       {nodes.length === 0 ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#F2EAD8]/90 z-20 font-sans">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#F2EAD8] z-20 font-sans">
           <div className="p-4 border border-[#233348] bg-[#E6DCB8] mb-4 rounded-[2px]">
-            <Compass className="h-10 w-10 text-[#233348] animate-spin" style={{ animationDuration: '10s' }} />
+            <RefreshCw className="h-10 w-10 text-[#233348] animate-spin" />
           </div>
           <h3 className="text-xl font-serif font-bold text-[#233348] mb-2 uppercase tracking-tight">
-            UNCHARTED TERRITORY STANDBY
+            CHARTING COBOL CODEBASE...
           </h3>
-          <p className="text-xs text-[#233348]/70 max-w-sm text-center mb-6 font-mono">
-            CLICK BELOW TO INITIALIZE EXPEDITION & CHART UNKNOWN COBOL SYSTEM.
+          <p className="text-xs text-[#233348]/70 max-w-sm text-center font-mono">
+            UNLOCKING 100% OF SETTLEMENTS AND MAPPING ALL ROADS.
           </p>
-          <button
-            onClick={onIngest}
-            disabled={loading}
-            className="px-6 py-2.5 border border-[#233348] bg-[#233348] text-[#F2EAD8] hover:bg-[#344861] font-mono text-xs font-bold uppercase tracking-wider transition-all"
-          >
-            {loading ? 'EXPLORING TERRITORY...' : '[START CARTOGRAPHER EXPEDITION]'}
-          </button>
         </div>
       ) : (
         <ReactFlow
@@ -198,7 +197,7 @@ const MapContent: React.FC<UnchartedMapViewProps> = ({ graphData, onSelectProgra
             [RECENTER TERRITORY MAP]
           </button>
           <div className="px-3.5 py-2 border border-[#233348] bg-[#E6DCB8] text-[#233348] font-bold">
-            Settlements: <span className="text-[#233348] font-bold">{nodes.length}</span> | Cleared: <span className="text-[#6B8F5E] font-bold">{fogClearedSet.size} / {nodes.length}</span>
+            Settlements: <span className="text-[#233348] font-bold">{nodes.length}</span> | Unlocked: <span className="text-[#6B8F5E] font-bold">{nodes.length} / {nodes.length} (100%)</span>
           </div>
         </div>
       )}
