@@ -63,11 +63,23 @@ class RiskScorer:
             bucket = "Critical"
             color = "#ef4444"
 
+        # Migration Effort Estimation Algorithm (Person-Days)
+        effort_days = round(
+            (total_complexity * 0.4) + (program.linesOfCode * 0.05) + (blast_count * 1.5) + (5.0 if has_sql_or_cics else 1.0),
+            1
+        )
+        estimated_python_loc = int(round(program.linesOfCode * 0.42))
+
         return {
             "programName": program.programName,
             "score": final_score,
             "bucket": bucket,
             "color": color,
+            "migrationEffort": {
+                "personDays": effort_days,
+                "targetPythonLoc": estimated_python_loc,
+                "complexityFactor": total_complexity,
+            },
             "breakdown": {
                 "totalComplexity": total_complexity,
                 "complexityScore": round(complexity_score * WEIGHT_COMPLEXITY, 1),
