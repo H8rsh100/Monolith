@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { VerticalNav } from './components/VerticalNav';
-import { ScanChamberGraph } from './components/ScanChamberGraph';
-import { FloatingProgramDetailHUD } from './components/FloatingProgramDetailHUD';
-import { FloatingRiskTableHUD } from './components/FloatingRiskTableHUD';
-import { FloatingCodegenHUD } from './components/FloatingCodegenHUD';
-import { FloatingReportHUD } from './components/FloatingReportHUD';
+import { SurveyorHeader } from './components/SurveyorHeader';
+import { StrataGraphView } from './components/StrataGraphView';
+import { StrataRiskMatrixView } from './components/StrataRiskMatrixView';
+import { StrataProgramDetailView } from './components/StrataProgramDetailView';
+import { StrataCodegenView } from './components/StrataCodegenView';
+import { StrataReportModal } from './components/StrataReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
-  const [activeHud, setActiveHud] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
+  const [activeTab, setActiveTab] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
   const [codebaseId, setCodebaseId] = useState<string>('demo-cobol');
   const [graphData, setGraphData] = useState<{ nodes: any[]; edges: any[] }>({ nodes: [], edges: [] });
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
@@ -18,29 +18,6 @@ export const App: React.FC = () => {
   const [report, setReport] = useState<ExecutiveReport | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const loadData = async (cid: string) => {
-    try {
-      setLoading(true);
-      const gData = await api.getGraph(cid);
-      if (gData && gData.nodes && gData.nodes.length > 0) {
-        setGraphData(gData);
-        const progs = await api.getPrograms(cid);
-        setPrograms(progs);
-        if (progs.length > 0) {
-          setSelectedProgram(progs[0].programName);
-          loadProgramDetail(cid, progs[0].programName);
-        }
-      } else {
-        await handleIngest();
-      }
-    } catch (e) {
-      console.warn("Auto-ingesting demo codebase...");
-      await handleIngest();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadProgramDetail = async (cid: string, pname: string) => {
     try {
@@ -70,6 +47,11 @@ export const App: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Auto-load on mount so Excavation Core Sample Graph is 100% visible immediately!
+  useEffect(() => {
+    handleIngest();
+  }, []);
 
   const handleSummarizeProgram = async () => {
     if (!selectedProgram) return;
@@ -133,32 +115,23 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_autopsy_report_${codebaseId}.json`;
+    a.download = `monolith_survey_report_${codebaseId}.json`;
     a.click();
   };
 
   const handleSelectProgram = (pname: string) => {
     setSelectedProgram(pname);
     loadProgramDetail(codebaseId, pname);
-    setActiveHud('detail');
+    setActiveTab('detail');
   };
 
-  useEffect(() => {
-    loadData(codebaseId);
-  }, []);
-
-  const isPaneOpen = activeHud !== 'graph';
-
   return (
-    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent flex">
+    <div className="h-screen w-screen bg-[#EDE6D6] text-[#1B2A3A] flex flex-col overflow-hidden font-sans">
       
-      {/* Continuous Diagnostic Viewport Scanline Loop */}
-      <div className="scanline-overlay" />
-
-      {/* Left Vertical Spine Navigation Rail */}
-      <VerticalNav
-        activeHud={activeHud}
-        setActiveHud={setActiveHud}
+      {/* Surveyor Field Notebook Header */}
+      <SurveyorHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
         onIngest={handleIngest}
         onSummarizeAll={handleSummarizeAll}
@@ -166,64 +139,52 @@ export const App: React.FC = () => {
         selectedProgram={selectedProgram}
       />
 
-      {/* Main Dual-Pane Viewport Container */}
-      <main className="flex-1 ml-16 h-full flex overflow-hidden">
-        
-        {/* Left Pane: Permanent Scan Chamber Graph Canvas */}
-        <div className="flex-1 h-full relative transition-all duration-300">
-          <ScanChamberGraph
+      {/* Main Viewport Workspace Container with Explicit Height */}
+      <main className="flex-1 w-full h-[calc(100vh-64px)] overflow-hidden relative">
+        {activeTab === 'graph' && (
+          <StrataGraphView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
             loading={loading}
-            activeHud={activeHud}
           />
-        </div>
-
-        {/* Right Pane: In-Flow Side Inspector Panel (Zero Overlap) */}
-        {isPaneOpen && (
-          <div className="w-[520px] lg:w-[600px] h-full transition-all duration-300 z-30 shrink-0">
-            {activeHud === 'detail' && (
-              <FloatingProgramDetailHUD
-                detail={programDetail}
-                codegen={codegen}
-                onSummarize={handleSummarizeProgram}
-                onGenerateCodegen={() => handleGenerateCodegen()}
-                onClose={() => setActiveHud('graph')}
-                loading={loading}
-              />
-            )}
-
-            {activeHud === 'risk' && (
-              <FloatingRiskTableHUD
-                programs={programs}
-                onSelectProgram={handleSelectProgram}
-                onClose={() => setActiveHud('graph')}
-              />
-            )}
-
-            {activeHud === 'codegen' && (
-              <FloatingCodegenHUD
-                programs={programs}
-                codegen={codegen}
-                selectedProgram={selectedProgram}
-                onSelectProgram={(p) => {
-                  setSelectedProgram(p);
-                  loadProgramDetail(codebaseId, p);
-                }}
-                onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
-                onClose={() => setActiveHud('graph')}
-                loading={loading}
-              />
-            )}
-          </div>
         )}
 
+        {activeTab === 'risk' && (
+          <StrataRiskMatrixView
+            programs={programs}
+            onSelectProgram={handleSelectProgram}
+          />
+        )}
+
+        {activeTab === 'detail' && (
+          <StrataProgramDetailView
+            detail={programDetail}
+            codegen={codegen}
+            onSummarize={handleSummarizeProgram}
+            onGenerateCodegen={() => handleGenerateCodegen()}
+            loading={loading}
+          />
+        )}
+
+        {activeTab === 'codegen' && (
+          <StrataCodegenView
+            programs={programs}
+            codegen={codegen}
+            selectedProgram={selectedProgram}
+            onSelectProgram={(p) => {
+              setSelectedProgram(p);
+              loadProgramDetail(codebaseId, p);
+            }}
+            onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
+            loading={loading}
+          />
+        )}
       </main>
 
-      {/* Executive Report Modal HUD */}
+      {/* Printed Survey Report Modal */}
       {showReportModal && report && (
-        <FloatingReportHUD
+        <StrataReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}

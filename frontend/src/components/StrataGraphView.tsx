@@ -11,7 +11,7 @@ import {
   ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Flag, Compass, Database, FileCode, Layers, Maximize2 } from 'lucide-react';
+import { Flag, Compass, Database, FileCode, Layers, Maximize2, RefreshCw } from 'lucide-react';
 
 interface StrataGraphViewProps {
   graphData: { nodes: any[]; edges: any[] };
@@ -124,6 +124,12 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
   }));
 
   useEffect(() => {
+    if (nodes.length === 0 && !loading) {
+      onIngest();
+    }
+  }, [nodes.length, loading, onIngest]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fitView({ padding: 0.2, duration: 400 });
     }, 200);
@@ -200,23 +206,16 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
       />
 
       {nodes.length === 0 ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#EDE6D6]/90 z-20 font-sans">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#EDE6D6] z-20 font-sans">
           <div className="p-4 border border-[#1B2A3A] bg-[#E4D9BC] mb-4 rounded-[2px]">
-            <Compass className="h-10 w-10 text-[#1B2A3A]" />
+            <RefreshCw className="h-10 w-10 text-[#1B2A3A] animate-spin" />
           </div>
           <h3 className="text-xl font-serif font-bold text-[#1B2A3A] mb-2 uppercase tracking-tight">
-            CORE SAMPLE DIG SITE STANDBY
+            EXCAVATING COBOL CORE SAMPLE...
           </h3>
-          <p className="text-xs text-[#1B2A3A]/70 max-w-sm text-center mb-6 font-mono">
-            CLICK BELOW TO EXCAVATE VERTICAL STRATIGRAPHY OF COBOL CORE SAMPLE.
+          <p className="text-xs text-[#1B2A3A]/70 max-w-sm text-center font-mono">
+            LOADING VERTICAL STRATIGRAPHY AND TOPOGRAPHIC CONTOURS.
           </p>
-          <button
-            onClick={onIngest}
-            disabled={loading}
-            className="px-6 py-2.5 border border-[#1B2A3A] bg-[#1B2A3A] text-[#EDE6D6] hover:bg-[#233549] font-mono text-xs font-bold uppercase tracking-wider transition-all"
-          >
-            {loading ? 'EXCAVATING STRATA...' : '[START VERTICAL EXCAVATION]'}
-          </button>
         </div>
       ) : (
         <ReactFlow
@@ -281,6 +280,8 @@ const StrataContent: React.FC<StrataGraphViewProps> = ({ graphData, onSelectProg
 
 export const StrataGraphView: React.FC<StrataGraphViewProps> = (props) => (
   <ReactFlowProvider>
-    <StrataContent {...props} />
+    <TopologyContent {...props} />
   </ReactFlowProvider>
 );
+
+const TopologyContent = StrataContent;
