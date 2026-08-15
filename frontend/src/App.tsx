@@ -23,15 +23,16 @@ export const App: React.FC = () => {
     try {
       setLoading(true);
       const gData = await api.getGraph(cid);
-      setGraphData(gData);
-
-      const progs = await api.getPrograms(cid);
-      setPrograms(progs);
-
-      if (progs.length > 0) {
-        const defaultProg = progs[0].programName;
-        setSelectedProgram(defaultProg);
-        loadProgramDetail(cid, defaultProg);
+      if (gData && gData.nodes && gData.nodes.length > 0) {
+        setGraphData(gData);
+        const progs = await api.getPrograms(cid);
+        setPrograms(progs);
+        if (progs.length > 0) {
+          setSelectedProgram(progs[0].programName);
+          loadProgramDetail(cid, progs[0].programName);
+        }
+      } else {
+        await handleIngest();
       }
     } catch (e) {
       console.warn("Auto-ingesting demo codebase...");
@@ -65,7 +66,7 @@ export const App: React.FC = () => {
       }
     } catch (e) {
       console.error("Ingest failed:", e);
-    } flexively: {
+    } finally {
       setLoading(false);
     }
   };
@@ -161,7 +162,12 @@ export const App: React.FC = () => {
 
       <main className="flex-1 overflow-hidden">
         {activeTab === 'graph' && (
-          <GraphView graphData={graphData} onSelectProgram={handleSelectProgram} />
+          <GraphView
+            graphData={graphData}
+            onSelectProgram={handleSelectProgram}
+            onIngest={handleIngest}
+            loading={loading}
+          />
         )}
 
         {activeTab === 'risk' && (
