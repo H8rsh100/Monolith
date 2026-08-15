@@ -177,7 +177,6 @@ def generate_program_codegen(cid: str, name: str):
     if pname not in cdata["programs"]:
         raise HTTPException(status_code=404, detail=f"Program '{name}' not found in codebase '{cid}'")
 
-    # If spec doesn't exist yet, auto-generate it
     if pname not in cdata["llm_specs"]:
         prog = cdata["programs"][pname]
         summarizer = LLMSummarizer()
@@ -187,3 +186,47 @@ def generate_program_codegen(cid: str, name: str):
     spec_data = cdata["llm_specs"][pname]
     generator = CodegenGenerator()
     return generator.generate_python_stub_and_tests(pname, spec_data)
+
+@router.get("/codebase/{cid}/export/report")
+def export_audit_report(cid: str):
+    if cid not in codebase_store:
+        raise HTTPException(status_code=404, detail=f"Codebase '{cid}' not found")
+
+    cdata = codebase_store[cid]
+    programs = cdata["programs"]
+    risk_scores = cdata["risk_scores"]
+
+    total_loc = sum(p.linesOfCode for p in programs.values())
+    total_effort = sum(risk_scores[pname]["migrationEffort"]["personDays"] for pname in programs)
+    target_python_loc = sum(risk_scores[pname]["migrationEffort"]["targetPythonLoc"] for pname in programs)
+    avg_risk = round(sum(risk_scores[pname]["score"] for pname in programs) / max(1, len(programs)), 1)
+
+    buckets = {"Low": 0, "Medium": 0, "High": 0, "Critical": 0}
+    for pname in programs:
+        b = risk_scores[pname]["bucket"]
+        buckets[b] = buckets.get(b, 0) + 1
+
+    return {
+        "codebaseId": cid,
+        "summary": {
+            "totalPrograms": len(programs),
+            "totalJclJobs": len(cdata["jcl_jobs"]),
+            "totalCobolLoc": total_loc,
+            "estimatedTargetLoc": target_python_loc,
+            "averageRiskScore": avg_risk,
+            "estimatedEffortPersonDays": total_effort,
+            "riskBucketDistribution": buckets
+        },
+        "programDetails": [
+            {
+                "name": pname,
+                "loc": prog.linesOfCode,
+                "riskScore": risk_scores[pname]["score"],
+                "riskBucket": risk_scores[pname]["bucket"],
+                "effortPersonDays": risk_scores[pname]["migrationEffort"]["personDays"],
+                "paragraphsCount": len(prog.paragraphs),
+                "sqlCount": len(prog.sqlBlocks)
+            }
+            for pname, prog in programs.items()
+        ]
+    }
