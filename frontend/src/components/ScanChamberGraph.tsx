@@ -3,7 +3,6 @@ import {
   ReactFlow,
   Controls,
   Background,
-  MiniMap,
   Node,
   Edge,
   NodeProps,
@@ -185,12 +184,6 @@ const ScanChamberContent: React.FC<ScanChamberGraphProps> = ({ graphData, onSele
           <Background color="rgba(45, 226, 230, 0.08)" gap={32} size={1} />
           
           <Controls className="!bg-void/90 !border-cyanAccent/30 !text-cyanAccent !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !top-4 !right-4 !left-auto !bottom-auto z-20" />
-          
-          <MiniMap
-            nodeColor={(node) => getThermalColor(node.data?.riskScore as number || 0).hex}
-            maskColor="rgba(5, 5, 6, 0.9)"
-            className="!bg-void/90 !border-cyanAccent/30 !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !bottom-4 !left-4 !right-auto"
-          />
         </ReactFlow>
       )}
 
