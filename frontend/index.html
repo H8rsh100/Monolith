@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monolith - COBOL Legacy Intelligence & Migration Engine</title>
+    <title>Monolith - Legacy System Autopsy & Thermal Diagnostic Scanner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -12,10 +12,20 @@
         theme: {
           extend: {
             colors: {
-              slate: {
-                850: '#111827',
-                950: '#090d16',
+              void: '#050506',
+              cyanAccent: '#2DE2E6',
+              thermal: {
+                blue: '#1E3A8A',
+                cyan: '#0891B2',
+                green: '#22C55E',
+                yellow: '#EAB308',
+                orange: '#F97316',
+                red: '#EF4444'
               }
+            },
+            fontFamily: {
+              sans: ['"Space Grotesk"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace']
             }
           }
         }
@@ -23,9 +33,9 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
+  <body class="bg-void text-slate-100 font-sans antialiased min-h-screen overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

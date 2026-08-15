@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { GraphView } from './components/GraphView';
-import { RiskMatrixView } from './components/RiskMatrixView';
-import { ProgramDetailView } from './components/ProgramDetailView';
-import { CodegenView } from './components/CodegenView';
+import { VerticalNav } from './components/VerticalNav';
+import { ScanChamberGraph } from './components/ScanChamberGraph';
+import { FloatingProgramDetailHUD } from './components/FloatingProgramDetailHUD';
+import { FloatingRiskTableHUD } from './components/FloatingRiskTableHUD';
+import { FloatingCodegenHUD } from './components/FloatingCodegenHUD';
+import { FloatingReportHUD } from './components/FloatingReportHUD';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
-import { X, Download, ShieldCheck, Clock, FileCode } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
+  const [activeHud, setActiveHud] = useState<'graph' | 'risk' | 'detail' | 'codegen'>('graph');
   const [codebaseId, setCodebaseId] = useState<string>('demo-cobol');
   const [graphData, setGraphData] = useState<{ nodes: any[]; edges: any[] }>({ nodes: [], edges: [] });
   const [programs, setPrograms] = useState<ProgramSummary[]>([]);
@@ -122,7 +122,7 @@ export const App: React.FC = () => {
       setShowReportModal(true);
     } catch (e) {
       console.error("Failed to export report:", e);
-    } finally {
+    } font: {
       setLoading(false);
     }
   };
@@ -133,14 +133,14 @@ export const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `monolith_migration_report_${codebaseId}.json`;
+    a.download = `monolith_autopsy_report_${codebaseId}.json`;
     a.click();
   };
 
   const handleSelectProgram = (pname: string) => {
     setSelectedProgram(pname);
     loadProgramDetail(codebaseId, pname);
-    setActiveTab('detail');
+    setActiveHud('detail');
   };
 
   useEffect(() => {
@@ -148,122 +148,77 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        codebaseId={codebaseId}
+    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent">
+      
+      {/* Continuous Diagnostic Viewport Scanline Loop */}
+      <div className="scanline-overlay" />
+
+      {/* Left Vertical Spine Navigation Rail */}
+      <VerticalNav
+        activeHud={activeHud}
+        setActiveHud={setActiveHud}
+        onOpenReport={handleExportReport}
         onIngest={handleIngest}
         onSummarizeAll={handleSummarizeAll}
-        onExportReport={handleExportReport}
         loading={loading}
         selectedProgram={selectedProgram}
       />
 
-      <main className="flex-1 overflow-hidden">
-        {activeTab === 'graph' && (
-          <GraphView
-            graphData={graphData}
-            onSelectProgram={handleSelectProgram}
-            onIngest={handleIngest}
-            loading={loading}
-          />
-        )}
-
-        {activeTab === 'risk' && (
-          <RiskMatrixView programs={programs} onSelectProgram={handleSelectProgram} />
-        )}
-
-        {activeTab === 'detail' && (
-          <ProgramDetailView
-            detail={programDetail}
-            codegen={codegen}
-            onSummarize={handleSummarizeProgram}
-            onGenerateCodegen={() => handleGenerateCodegen()}
-            loading={loading}
-          />
-        )}
-
-        {activeTab === 'codegen' && (
-          <CodegenView
-            programs={programs}
-            codegen={codegen}
-            selectedProgram={selectedProgram}
-            onSelectProgram={(p) => {
-              setSelectedProgram(p);
-              loadProgramDetail(codebaseId, p);
-            }}
-            onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
-            loading={loading}
-          />
-        )}
+      {/* Main Viewport Container: Permanent Scan Chamber Centerpiece */}
+      <main className="absolute top-0 bottom-0 left-16 right-0 overflow-hidden">
+        <ScanChamberGraph
+          graphData={graphData}
+          onSelectProgram={handleSelectProgram}
+          onIngest={handleIngest}
+          loading={loading}
+        />
       </main>
 
-      {/* Executive Report Modal */}
+      {/* Docked Floating HUD Panels */}
+      {activeHud === 'detail' && (
+        <FloatingProgramDetailHUD
+          detail={programDetail}
+          codegen={codegen}
+          onSummarize={handleSummarizeProgram}
+          onGenerateCodegen={() => handleGenerateCodegen()}
+          onClose={() => setActiveHud('graph')}
+          loading={loading}
+        />
+      )}
+
+      {activeHud === 'risk' && (
+        <FloatingRiskTableHUD
+          programs={programs}
+          onSelectProgram={(pname) => {
+            handleSelectProgram(pname);
+          }}
+          onClose={() => setActiveHud('graph')}
+        />
+      )}
+
+      {activeHud === 'codegen' && (
+        <FloatingCodegenHUD
+          programs={programs}
+          codegen={codegen}
+          selectedProgram={selectedProgram}
+          onSelectProgram={(p) => {
+            setSelectedProgram(p);
+            loadProgramDetail(codebaseId, p);
+          }}
+          onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
+          onClose={() => setActiveHud('graph')}
+          loading={loading}
+        />
+      )}
+
+      {/* Executive Report Modal HUD */}
       {showReportModal && report && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-3xl overflow-hidden shadow-2xl border-slate-700">
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-6 w-6 text-purple-400" />
-                <h3 className="font-bold font-mono text-lg text-white">Executive Migration Audit Report</h3>
-              </div>
-              <button
-                onClick={() => setShowReportModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto font-mono text-xs text-slate-300">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
-                  <FileCode className="h-5 w-5 text-sky-400 mx-auto mb-1" />
-                  <span className="text-slate-400 text-[11px] uppercase">COBOL Codebase</span>
-                  <div className="text-xl font-bold text-white mt-1">{report.summary.totalCobolLoc} LOC</div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
-                  <Clock className="h-5 w-5 text-emerald-400 mx-auto mb-1" />
-                  <span className="text-slate-400 text-[11px] uppercase">Estimated Effort</span>
-                  <div className="text-xl font-bold text-emerald-400 mt-1">{report.summary.estimatedEffortPersonDays} Days</div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
-                  <ShieldCheck className="h-5 w-5 text-purple-400 mx-auto mb-1" />
-                  <span className="text-slate-400 text-[11px] uppercase">Average System Risk</span>
-                  <div className="text-xl font-bold text-purple-300 mt-1">{report.summary.averageRiskScore}/100</div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-slate-200 uppercase mb-2">System Program Portfolio ({report.summary.totalPrograms} Programs)</h4>
-                <div className="border border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-800">
-                  {report.programDetails.map((pd) => (
-                    <div key={pd.name} className="p-3 flex items-center justify-between bg-slate-900/40 hover:bg-slate-900">
-                      <span className="font-bold text-sky-400">{pd.name}.cbl</span>
-                      <span className="text-slate-400">{pd.loc} LOC</span>
-                      <span className="text-slate-400">{pd.paragraphsCount} Paragraphs</span>
-                      <span className="font-bold text-emerald-400">{pd.effortPersonDays} Days Effort</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-mono">Codebase ID: {codebaseId}</span>
-              <button
-                onClick={downloadJsonReport}
-                className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-mono font-semibold shadow-md flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Export Audit Report (JSON)
-              </button>
-            </div>
-          </div>
-        </div>
+        <FloatingReportHUD
+          report={report}
+          codebaseId={codebaseId}
+          onClose={() => setShowReportModal(false)}
+          onDownload={downloadJsonReport}
+        />
       )}
 
     </div>
