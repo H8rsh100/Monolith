@@ -24,14 +24,19 @@ export interface ProgramDetail {
     calls: string[];
     copybooks: string[];
     fileIO: Array<{ name: string; mode: string; organization: string; assignTo: string }>;
-    sqlBlocks: Array<{ type: string; rawText: string; targetTables: string[] }>;
-    dataDivision: Array<{ level: string; name: string; picClause: string; redefines: string }>;
+    sqlBlocks: Array<{ type: string; rawText: string; crudType?: string; targetTables: string[] }>;
+    dataDivision: Array<{ level: string; name: string; picClause: string; redefines: string; conditionValues?: string[] }>;
     rawSource?: string;
   };
   risk: {
     score: number;
     bucket: string;
     color: string;
+    migrationEffort?: {
+      personDays: number;
+      targetPythonLoc: number;
+      complexityFactor: number;
+    };
     breakdown: {
       totalComplexity: number;
       complexityScore: number;
@@ -59,6 +64,29 @@ export interface CodegenResult {
   stubCode: string;
   testFilename: string;
   testCode: string;
+  language?: string;
+}
+
+export interface ExecutiveReport {
+  codebaseId: string;
+  summary: {
+    totalPrograms: number;
+    totalJclJobs: number;
+    totalCobolLoc: number;
+    estimatedTargetLoc: number;
+    averageRiskScore: number;
+    estimatedEffortPersonDays: number;
+    riskBucketDistribution: Record<string, number>;
+  };
+  programDetails: Array<{
+    name: string;
+    loc: number;
+    riskScore: number;
+    riskBucket: string;
+    effortPersonDays: number;
+    paragraphsCount: number;
+    sqlCount: number;
+  }>;
 }
 
 export const api = {
@@ -99,8 +127,15 @@ export const api = {
     return res.data;
   },
 
-  async generateCodegen(codebaseId: string, programName: string) {
-    const res = await axios.post(`${API_BASE}/codebase/${codebaseId}/programs/${programName}/codegen`);
+  async generateCodegen(codebaseId: string, programName: string, lang: string = 'python') {
+    const res = await axios.post(`${API_BASE}/codebase/${codebaseId}/programs/${programName}/codegen`, null, {
+      params: { lang }
+    });
     return res.data as CodegenResult;
+  },
+
+  async exportReport(codebaseId: string) {
+    const res = await axios.get(`${API_BASE}/codebase/${codebaseId}/export/report`);
+    return res.data as ExecutiveReport;
   }
 };

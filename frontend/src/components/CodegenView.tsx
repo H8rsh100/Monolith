@@ -7,7 +7,7 @@ interface CodegenViewProps {
   codegen: CodegenResult | null;
   selectedProgram: string;
   onSelectProgram: (pname: string) => void;
-  onGenerateCodegen: (pname: string) => void;
+  onGenerateCodegen: (pname: string, lang: string) => void;
   loading: boolean;
 }
 
@@ -21,6 +21,7 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
 }) => {
   const [copiedStub, setCopiedStub] = useState(false);
   const [copiedTest, setCopiedTest] = useState(false);
+  const [targetLang, setTargetLang] = useState<'python' | 'java'>('python');
 
   const handleCopy = (text: string, isStub: boolean) => {
     navigator.clipboard.writeText(text);
@@ -31,6 +32,11 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
       setCopiedTest(true);
       setTimeout(() => setCopiedTest(false), 2000);
     }
+  };
+
+  const handleLangSwitch = (lang: 'python' | 'java') => {
+    setTargetLang(lang);
+    onGenerateCodegen(selectedProgram, lang);
   };
 
   return (
@@ -45,8 +51,8 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
         </div>
       </div>
 
-      {/* Program Selector Bar */}
-      <div className="glass-panel p-4 mb-6 flex items-center justify-between">
+      {/* Program & Language Selector Bar */}
+      <div className="glass-panel p-4 mb-6 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <FileCode className="h-5 w-5 text-sky-400" />
           <span className="text-xs font-mono text-slate-300 font-bold uppercase">Target Program:</span>
@@ -54,7 +60,7 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
             value={selectedProgram}
             onChange={(e) => {
               onSelectProgram(e.target.value);
-              onGenerateCodegen(e.target.value);
+              onGenerateCodegen(e.target.value, targetLang);
             }}
             className="bg-slate-900 border border-slate-800 text-xs font-mono text-sky-400 font-bold rounded-lg px-3 py-2 focus:outline-none focus:border-sky-500"
           >
@@ -66,8 +72,29 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
           </select>
         </div>
 
+        {/* Target Stack Switcher */}
+        <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800 font-mono text-xs">
+          <span className="text-slate-400 px-2 font-bold uppercase text-[11px]">Target Stack:</span>
+          <button
+            onClick={() => handleLangSwitch('python')}
+            className={`px-3 py-1 rounded text-xs transition-all ${
+              targetLang === 'python' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Python 3.12
+          </button>
+          <button
+            onClick={() => handleLangSwitch('java')}
+            className={`px-3 py-1 rounded text-xs transition-all ${
+              targetLang === 'java' ? 'bg-sky-500 text-white font-bold' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Java Spring Boot
+          </button>
+        </div>
+
         <button
-          onClick={() => onGenerateCodegen(selectedProgram)}
+          onClick={() => onGenerateCodegen(selectedProgram, targetLang)}
           disabled={loading}
           className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md transition-all flex items-center gap-2"
         >
@@ -80,7 +107,7 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
       {codegen ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Python Target Stub */}
+          {/* Target Service Stub */}
           <div className="glass-panel overflow-hidden flex flex-col h-[520px]">
             <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-2">
@@ -100,7 +127,7 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
             </pre>
           </div>
 
-          {/* Pytest Test Skeleton */}
+          {/* Test Skeleton */}
           <div className="glass-panel overflow-hidden flex flex-col h-[520px]">
             <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-purple-400 flex items-center gap-2">
@@ -123,7 +150,7 @@ export const CodegenView: React.FC<CodegenViewProps> = ({
         </div>
       ) : (
         <div className="glass-panel p-12 text-center font-mono text-slate-400 text-xs">
-          Select a program and click "Re-Generate Scaffold" to view modern Python stubs.
+          Select a program and target stack to view modern code stubs.
         </div>
       )}
 
