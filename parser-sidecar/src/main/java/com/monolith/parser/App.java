@@ -2,8 +2,7 @@ package com.monolith.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.monolith.parser.model.JclJob;
-import com.monolith.parser.model.ProgramAnalysis;
+import com.monolith.parser.model.*;
 
 import java.io.File;
 
