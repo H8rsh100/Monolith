@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --vellum-base: #EDE6D6;
-  --vellum-ink: #1B2A3A;
-  --vellum-border: rgba(27, 42, 58, 0.4);
+  --parchment-base: #F2EAD8;
+  --parchment-ink: #233348;
+  --parchment-border: rgba(35, 51, 72, 0.4);
   --font-serif: 'Fraunces', serif;
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -18,8 +18,8 @@
 }
 
 body {
-  background-color: var(--vellum-base);
-  color: var(--vellum-ink);
+  background-color: var(--parchment-base);
+  color: var(--parchment-ink);
   font-family: var(--font-sans);
   min-height: 100vh;
   overflow: hidden;
@@ -29,81 +29,117 @@ code, pre {
   font-family: var(--font-mono);
 }
 
-/* Aged Vellum Paper Texture */
-.vellum-bg {
-  background-color: #EDE6D6;
+/* Aged Parchment Paper Texture */
+.parchment-bg {
+  background-color: #F2EAD8;
   background-image: 
-    radial-gradient(ellipse at 30% 20%, rgba(201, 184, 150, 0.25) 0%, transparent 70%),
-    radial-gradient(ellipse at 70% 80%, rgba(132, 109, 73, 0.15) 0%, transparent 70%),
-    linear-gradient(rgba(27, 42, 58, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 42, 58, 0.04) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+    radial-gradient(ellipse at 20% 30%, rgba(201, 162, 75, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(181, 98, 58, 0.12) 0%, transparent 60%),
+    linear-gradient(rgba(35, 51, 72, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 51, 72, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
 }
 
-/* Technical Survey Document Card Treatment */
-.survey-card {
-  background: rgba(237, 230, 214, 0.85);
-  border: 1px solid rgba(27, 42, 58, 0.4);
+/* Translucent Fog of War Layer with Soft Cloud Parting Animation */
+.fog-overlay {
+  background: rgba(140, 150, 165, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px stroke rgba(255, 255, 255, 0.3);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fog-dissolve {
+  animation: cloud-parting 1.2s ease-out forwards;
+}
+
+@keyframes cloud-parting {
+  0% { opacity: 0.85; filter: blur(12px); transform: scale(1.05); }
+  100% { opacity: 0; filter: blur(0px); transform: scale(1); pointer-events: none; }
+}
+
+/* Danger Marshland Cross-Hatch Texture */
+.danger-marsh-pattern {
+  background-color: rgba(139, 46, 46, 0.15);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(139, 46, 46, 0.3),
+    rgba(139, 46, 46, 0.3) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+/* Cartographer Panel Treatment */
+.map-panel {
+  background: rgba(242, 234, 216, 0.9);
+  border: 1px solid rgba(35, 51, 72, 0.4);
   border-radius: 2px;
   box-shadow: none;
 }
 
-.survey-card-solid {
-  background: #E4D9BC;
-  border: 1px solid #1B2A3A;
+.map-panel-solid {
+  background: #E6DCB8;
+  border: 1px solid #233348;
   border-radius: 2px;
 }
 
-/* Surveyor Field Notebook Index Tab */
-.field-tab {
-  background: #C9B896;
-  border: 1px solid #1B2A3A;
+/* Expedition Log Corner Folded-Card Index Tabs */
+.expedition-tab {
+  background: #D9CBAB;
+  border: 1px solid #233348;
   border-bottom: none;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  color: #1B2A3A;
+  color: #233348;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
-.field-tab-active {
-  background: #EDE6D6;
-  border-bottom: 2px solid #EDE6D6;
+.expedition-tab-active {
+  background: #F2EAD8;
+  border-bottom: 2px solid #F2EAD8;
   font-weight: 700;
 }
 
-/* React Flow Linework Edge Styling */
+/* React Flow Road Line Animation */
 .react-flow__renderer {
   background-color: transparent !important;
 }
 
 .react-flow__edge-path {
-  stroke: #1B2A3A;
-  stroke-width: 1.5;
-  stroke-dasharray: 4 4;
+  stroke: #233348;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  animation: road-draw 2s linear infinite;
+}
+
+@keyframes road-draw {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
 }
 
 .react-flow__attribution {
   display: none !important;
 }
 
-/* Custom Surveyor Scrollbars */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #EDE6D6;
-  border-left: 1px solid rgba(27, 42, 58, 0.3);
+  background: #F2EAD8;
+  border-left: 1px solid rgba(35, 51, 72, 0.3);
 }
 ::-webkit-scrollbar-thumb {
-  background: #A8926B;
+  background: #C9A24B;
   border-radius: 1px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1B2A3A;
+  background: #233348;
 }

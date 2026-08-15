@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { SurveyorHeader } from './components/SurveyorHeader';
-import { StrataGraphView } from './components/StrataGraphView';
-import { StrataRiskMatrixView } from './components/StrataRiskMatrixView';
-import { StrataProgramDetailView } from './components/StrataProgramDetailView';
-import { StrataCodegenView } from './components/StrataCodegenView';
-import { StrataReportModal } from './components/StrataReportModal';
+import { ExpeditionHeader } from './components/ExpeditionHeader';
+import { UnchartedMapView } from './components/UnchartedMapView';
+import { UnchartedRiskMatrixView } from './components/UnchartedRiskMatrixView';
+import { UnchartedProgramDetailView } from './components/UnchartedProgramDetailView';
+import { UnchartedCodegenView } from './components/UnchartedCodegenView';
+import { UnchartedReportModal } from './components/UnchartedReportModal';
 import { api, ProgramSummary, ProgramDetail, CodegenResult, ExecutiveReport } from './api';
 
 export const App: React.FC = () => {
@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [report, setReport] = useState<ExecutiveReport | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [fogClearedSet, setFogClearedSet] = useState<Set<string>>(new Set(['CUSTMAIN']));
 
   const loadProgramDetail = async (cid: string, pname: string) => {
     try {
@@ -37,7 +38,11 @@ export const App: React.FC = () => {
       setGraphData(gData);
       const progs = await api.getPrograms(res.codebaseId);
       setPrograms(progs);
+      
+      // Initially clear fog for the selected program, leaving others fog shrouded
       if (progs.length > 0) {
+        const initialSet = new Set<string>([progs[0].programName]);
+        setFogClearedSet(initialSet);
         setSelectedProgram(progs[0].programName);
         loadProgramDetail(res.codebaseId, progs[0].programName);
       }
@@ -54,6 +59,9 @@ export const App: React.FC = () => {
       setLoading(true);
       await api.summarizeProgram(codebaseId, selectedProgram);
       await loadProgramDetail(codebaseId, selectedProgram);
+      
+      // Lift fog for this settlement!
+      setFogClearedSet((prev) => new Set([...Array.from(prev), selectedProgram]));
     } catch (e) {
       console.error("Summarize failed:", e);
     } finally {
@@ -70,6 +78,10 @@ export const App: React.FC = () => {
       if (selectedProgram) {
         await loadProgramDetail(codebaseId, selectedProgram);
       }
+      
+      // Lift fog for ALL settlements in the codebase!
+      const allNames = progs.map((p) => p.programName);
+      setFogClearedSet(new Set(allNames));
     } catch (e) {
       console.error("Summarize all failed:", e);
     } finally {
@@ -121,10 +133,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-[#EDE6D6] text-[#1B2A3A] flex flex-col overflow-hidden font-sans">
+    <div className="h-screen w-screen bg-[#F2EAD8] text-[#233348] flex flex-col overflow-hidden font-sans">
       
-      {/* Surveyor Field Notebook Header */}
-      <SurveyorHeader
+      {/* Expedition Header */}
+      <ExpeditionHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenReport={handleExportReport}
@@ -132,28 +144,31 @@ export const App: React.FC = () => {
         onSummarizeAll={handleSummarizeAll}
         loading={loading}
         selectedProgram={selectedProgram}
+        fogClearedCount={fogClearedSet.size}
+        totalProgramCount={programs.length}
       />
 
       {/* Main Viewport Workspace Container with Explicit Height */}
       <main className="flex-1 w-full h-[calc(100vh-64px)] overflow-hidden relative">
         {activeTab === 'graph' && (
-          <StrataGraphView
+          <UnchartedMapView
             graphData={graphData}
             onSelectProgram={handleSelectProgram}
             onIngest={handleIngest}
             loading={loading}
+            fogClearedSet={fogClearedSet}
           />
         )}
 
         {activeTab === 'risk' && (
-          <StrataRiskMatrixView
+          <UnchartedRiskMatrixView
             programs={programs}
             onSelectProgram={handleSelectProgram}
           />
         )}
 
         {activeTab === 'detail' && (
-          <StrataProgramDetailView
+          <UnchartedProgramDetailView
             detail={programDetail}
             codegen={codegen}
             onSummarize={handleSummarizeProgram}
@@ -163,7 +178,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'codegen' && (
-          <StrataCodegenView
+          <UnchartedCodegenView
             programs={programs}
             codegen={codegen}
             selectedProgram={selectedProgram}
@@ -177,13 +192,15 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Printed Survey Report Modal */}
+      {/* Cartographer Printed Survey Report Modal */}
       {showReportModal && report && (
-        <StrataReportModal
+        <UnchartedReportModal
           report={report}
           codebaseId={codebaseId}
           onClose={() => setShowReportModal(false)}
           onDownload={downloadJsonReport}
+          fogClearedCount={fogClearedSet.size}
+          totalProgramCount={programs.length}
         />
       )}
 
