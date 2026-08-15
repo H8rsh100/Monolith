@@ -1,7 +1,7 @@
 import os
 import uuid
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Query
 from pydantic import BaseModel
 
 from app.services.parser_client import ParserClient
@@ -168,7 +168,7 @@ def summarize_all_programs(cid: str):
     }
 
 @router.post("/codebase/{cid}/programs/{name}/codegen")
-def generate_program_codegen(cid: str, name: str):
+def generate_program_codegen(cid: str, name: str, lang: str = Query("python")):
     if cid not in codebase_store:
         raise HTTPException(status_code=404, detail=f"Codebase '{cid}' not found")
 
@@ -185,7 +185,7 @@ def generate_program_codegen(cid: str, name: str):
 
     spec_data = cdata["llm_specs"][pname]
     generator = CodegenGenerator()
-    return generator.generate_python_stub_and_tests(pname, spec_data)
+    return generator.generate_codegen(pname, spec_data, target_language=lang)
 
 @router.get("/codebase/{cid}/export/report")
 def export_audit_report(cid: str):
