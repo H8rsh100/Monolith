@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -21,6 +21,7 @@ interface ScanChamberGraphProps {
   onSelectProgram: (programName: string) => void;
   onIngest: () => void;
   loading: boolean;
+  activeHud?: string;
 }
 
 // Thermal Diagnostic Node Component
@@ -42,7 +43,7 @@ const DiagnosticNode: React.FC<NodeProps> = ({ data }) => {
 
   return (
     <div
-      className={`px-4 py-3 rounded-lg text-white min-w-[200px] glass-hud glass-hud-hover relative node-ripple-target ${nodeType === 'program' ? thermal.pulseClass : ''}`}
+      className={`px-4 py-3 rounded-lg text-white min-w-[190px] glass-hud glass-hud-hover relative node-ripple-target ${nodeType === 'program' ? thermal.pulseClass : ''}`}
       style={{
         borderColor: nodeType === 'program' ? thermal.hex : 'rgba(45, 226, 230, 0.3)',
         boxShadow: nodeType === 'program' ? `0 0 20px ${thermal.glow}` : '0 0 15px rgba(45,226,230,0.15)',
@@ -105,7 +106,7 @@ const nodeTypes = {
   jcl_job: DiagnosticNode
 };
 
-const ScanChamberContent: React.FC<ScanChamberGraphProps> = ({ graphData, onSelectProgram, onIngest, loading }) => {
+const ScanChamberContent: React.FC<ScanChamberGraphProps> = ({ graphData, onSelectProgram, onIngest, loading, activeHud }) => {
   const { fitView } = useReactFlow();
 
   const nodes: Node[] = (graphData.nodes || []).map((n) => ({
@@ -128,6 +129,14 @@ const ScanChamberContent: React.FC<ScanChamberGraphProps> = ({ graphData, onSele
       animated: true
     };
   });
+
+  // Auto-refit view when side panel opens or closes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.25, duration: 300 });
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [activeHud, fitView, nodes.length]);
 
   const handleNodeClick = (_: any, node: Node) => {
     if (node.data && node.data.name && (node.type === 'program' || !node.type)) {
@@ -170,53 +179,36 @@ const ScanChamberContent: React.FC<ScanChamberGraphProps> = ({ graphData, onSele
           nodeTypes={nodeTypes}
           onNodeClick={handleNodeClick}
           fitView
-          fitViewOptions={{ padding: 0.3 }}
+          fitViewOptions={{ padding: 0.25 }}
           colorMode="dark"
         >
           <Background color="rgba(45, 226, 230, 0.08)" gap={32} size={1} />
           
-          <Controls className="!bg-void/90 !border-cyanAccent/30 !text-cyanAccent !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !top-6 !right-6 !left-auto !bottom-auto" />
+          <Controls className="!bg-void/90 !border-cyanAccent/30 !text-cyanAccent !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !top-4 !right-4 !left-auto !bottom-auto z-20" />
           
           <MiniMap
             nodeColor={(node) => getThermalColor(node.data?.riskScore as number || 0).hex}
             maskColor="rgba(5, 5, 6, 0.9)"
-            className="!bg-void/90 !border-cyanAccent/30 !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !bottom-6 !right-6"
+            className="!bg-void/90 !border-cyanAccent/30 !rounded-md !shadow-[0_0_20px_rgba(45,226,230,0.2)] !bottom-4 !left-4 !right-auto"
           />
         </ReactFlow>
       )}
 
       {/* Chamber Header & Controls */}
       {nodes.length > 0 && (
-        <div className="absolute top-6 left-20 z-10 flex items-center gap-3">
+        <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
           <button
-            onClick={() => fitView({ padding: 0.3, duration: 400 })}
-            className="px-3.5 py-1.5 rounded glass-hud text-xs font-mono font-semibold text-cyanAccent hover:border-cyanAccent/60 transition-all flex items-center gap-2"
+            onClick={() => fitView({ padding: 0.25, duration: 400 })}
+            className="px-3 py-1.5 rounded glass-hud text-xs font-mono font-semibold text-cyanAccent hover:border-cyanAccent/60 transition-all flex items-center gap-1.5 shadow-xl"
           >
             <Maximize2 className="h-3.5 w-3.5" />
-            Recenter Scan
+            Recenter Graph
           </button>
-          <div className="px-3.5 py-1.5 rounded glass-hud text-xs font-mono text-slate-300">
-            System Nodes: <span className="text-cyanAccent font-bold">{nodes.length}</span> | Dependency Edges: <span className="text-cyanAccent font-bold">{edges.length}</span>
+          <div className="px-3 py-1.5 rounded glass-hud text-xs font-mono text-slate-300">
+            Nodes: <span className="text-cyanAccent font-bold">{nodes.length}</span> | Edges: <span className="text-cyanAccent font-bold">{edges.length}</span>
           </div>
         </div>
       )}
-
-      {/* Thermal Gradient Legend HUD Overlay */}
-      <div className="absolute bottom-6 left-20 z-10 p-3.5 glass-hud text-xs font-mono flex flex-col gap-2 min-w-[240px]">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-          <span className="font-bold text-cyanAccent uppercase text-[10px] tracking-widest">Thermal Spectrum</span>
-          <span className="text-[10px] text-slate-400 font-mono">0°C → 100°C</span>
-        </div>
-        
-        {/* Continuous Thermal Bar */}
-        <div className="h-2.5 rounded-full w-full bg-gradient-to-r from-[#1E3A8A] via-[#0891B2] via-[#22C55E] via-[#EAB308] via-[#F97316] to-[#EF4444] shadow-inner" />
-
-        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
-          <span>SAFE (0)</span>
-          <span>MODERATE (50)</span>
-          <span className="text-red-400 font-bold">HOT (100)</span>
-        </div>
-      </div>
 
     </div>
   );

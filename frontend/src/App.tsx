@@ -122,7 +122,7 @@ export const App: React.FC = () => {
       setShowReportModal(true);
     } catch (e) {
       console.error("Failed to export report:", e);
-    } font: {
+    } finally {
       setLoading(false);
     }
   };
@@ -147,8 +147,10 @@ export const App: React.FC = () => {
     loadData(codebaseId);
   }, []);
 
+  const isPaneOpen = activeHud !== 'graph';
+
   return (
-    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent">
+    <div className="relative w-screen h-screen bg-void text-slate-100 overflow-hidden font-sans selection:bg-cyanAccent/30 selection:text-cyanAccent flex">
       
       {/* Continuous Diagnostic Viewport Scanline Loop */}
       <div className="scanline-overlay" />
@@ -164,52 +166,60 @@ export const App: React.FC = () => {
         selectedProgram={selectedProgram}
       />
 
-      {/* Main Viewport Container: Permanent Scan Chamber Centerpiece */}
-      <main className="absolute top-0 bottom-0 left-16 right-0 overflow-hidden">
-        <ScanChamberGraph
-          graphData={graphData}
-          onSelectProgram={handleSelectProgram}
-          onIngest={handleIngest}
-          loading={loading}
-        />
+      {/* Main Dual-Pane Viewport Container */}
+      <main className="flex-1 ml-16 h-full flex overflow-hidden">
+        
+        {/* Left Pane: Permanent Scan Chamber Graph Canvas */}
+        <div className="flex-1 h-full relative transition-all duration-300">
+          <ScanChamberGraph
+            graphData={graphData}
+            onSelectProgram={handleSelectProgram}
+            onIngest={handleIngest}
+            loading={loading}
+            activeHud={activeHud}
+          />
+        </div>
+
+        {/* Right Pane: In-Flow Side Inspector Panel (Zero Overlap) */}
+        {isPaneOpen && (
+          <div className="w-[520px] lg:w-[600px] h-full transition-all duration-300 z-30 shrink-0">
+            {activeHud === 'detail' && (
+              <FloatingProgramDetailHUD
+                detail={programDetail}
+                codegen={codegen}
+                onSummarize={handleSummarizeProgram}
+                onGenerateCodegen={() => handleGenerateCodegen()}
+                onClose={() => setActiveHud('graph')}
+                loading={loading}
+              />
+            )}
+
+            {activeHud === 'risk' && (
+              <FloatingRiskTableHUD
+                programs={programs}
+                onSelectProgram={handleSelectProgram}
+                onClose={() => setActiveHud('graph')}
+              />
+            )}
+
+            {activeHud === 'codegen' && (
+              <FloatingCodegenHUD
+                programs={programs}
+                codegen={codegen}
+                selectedProgram={selectedProgram}
+                onSelectProgram={(p) => {
+                  setSelectedProgram(p);
+                  loadProgramDetail(codebaseId, p);
+                }}
+                onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
+                onClose={() => setActiveHud('graph')}
+                loading={loading}
+              />
+            )}
+          </div>
+        )}
+
       </main>
-
-      {/* Docked Floating HUD Panels */}
-      {activeHud === 'detail' && (
-        <FloatingProgramDetailHUD
-          detail={programDetail}
-          codegen={codegen}
-          onSummarize={handleSummarizeProgram}
-          onGenerateCodegen={() => handleGenerateCodegen()}
-          onClose={() => setActiveHud('graph')}
-          loading={loading}
-        />
-      )}
-
-      {activeHud === 'risk' && (
-        <FloatingRiskTableHUD
-          programs={programs}
-          onSelectProgram={(pname) => {
-            handleSelectProgram(pname);
-          }}
-          onClose={() => setActiveHud('graph')}
-        />
-      )}
-
-      {activeHud === 'codegen' && (
-        <FloatingCodegenHUD
-          programs={programs}
-          codegen={codegen}
-          selectedProgram={selectedProgram}
-          onSelectProgram={(p) => {
-            setSelectedProgram(p);
-            loadProgramDetail(codebaseId, p);
-          }}
-          onGenerateCodegen={(p, lang) => handleGenerateCodegen(p, lang)}
-          onClose={() => setActiveHud('graph')}
-          loading={loading}
-        />
-      )}
 
       {/* Executive Report Modal HUD */}
       {showReportModal && report && (

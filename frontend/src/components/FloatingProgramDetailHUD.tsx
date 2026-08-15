@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProgramDetail, CodegenResult } from '../api';
 import { getThermalColor } from '../utils/thermalColor';
-import { X, Sparkles, Code, Table, Shield, CheckCircle, ArrowRight, AlertTriangle, Minimize2, Maximize2, Cpu } from 'lucide-react';
+import { X, Sparkles, Code, Table, Shield, CheckCircle, ArrowRight, AlertTriangle } from 'lucide-react';
 
 interface FloatingProgramDetailHUDProps {
   detail: ProgramDetail | null;
@@ -22,7 +22,6 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
 }) => {
   const [activeTab, setActiveTab] = useState<'spec' | 'schema' | 'risk' | 'codegen'>('spec');
   const [copiedCode, setCopiedCode] = useState(false);
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
   if (!detail) return null;
 
@@ -35,27 +34,8 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  if (isMinimized) {
-    return (
-      <div className="fixed top-6 right-6 z-40 px-4 py-2 glass-hud flex items-center gap-3 border-cyanAccent/40 shadow-2xl font-mono text-xs text-cyanAccent">
-        <Cpu className="h-4 w-4 text-cyanAccent animate-pulse" />
-        <span className="font-bold uppercase tracking-wider">Program HUD: {program.programName}.cbl (Collapsed)</span>
-        <button
-          onClick={() => setIsMinimized(false)}
-          className="p-1 text-slate-400 hover:text-cyanAccent rounded"
-          title="Expand HUD"
-        >
-          <Maximize2 className="h-3.5 w-3.5" />
-        </button>
-        <button onClick={onClose} className="p-1 text-slate-400 hover:text-red-400 rounded" title="Close HUD">
-          <X className="h-3.5 w-3.5" />
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed top-6 right-6 bottom-6 w-[560px] z-40 glass-hud flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] border-cyanAccent/30 overflow-hidden font-sans animate-in slide-in-from-right duration-300">
+    <div className="w-full h-full flex flex-col bg-void/95 border-l border-cyanAccent/30 font-sans overflow-hidden">
       
       {/* HUD Header Bar */}
       <div className="p-4 border-b border-cyanAccent/20 bg-void/80 flex items-center justify-between">
@@ -78,25 +58,20 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
           </p>
         </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setIsMinimized(true)}
-            className="text-slate-400 hover:text-cyanAccent p-1 rounded"
-            title="Minimize HUD"
-          >
-            <Minimize2 className="h-4 w-4" />
-          </button>
-          <button onClick={onClose} className="text-slate-400 hover:text-red-400 p-1 rounded" title="Close HUD">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          onClick={onClose}
+          className="text-slate-400 hover:text-cyanAccent p-1.5 rounded hover:bg-slate-900/60 transition-colors"
+          title="Close Inspector Pane"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Tabs Switcher */}
       <div className="flex items-center border-b border-slate-800 bg-slate-900/50 px-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('spec')}
-          className={`px-3 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
+          className={`px-3.5 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
             activeTab === 'spec' ? 'border-cyanAccent text-cyanAccent' : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -104,7 +79,7 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         </button>
         <button
           onClick={() => setActiveTab('schema')}
-          className={`px-3 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
+          className={`px-3.5 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
             activeTab === 'schema' ? 'border-cyanAccent text-cyanAccent' : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -112,7 +87,7 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         </button>
         <button
           onClick={() => setActiveTab('risk')}
-          className={`px-3 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
+          className={`px-3.5 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
             activeTab === 'risk' ? 'border-cyanAccent text-cyanAccent' : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -120,7 +95,7 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         </button>
         <button
           onClick={() => setActiveTab('codegen')}
-          className={`px-3 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
+          className={`px-3.5 py-2.5 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
             activeTab === 'codegen' ? 'border-cyanAccent text-cyanAccent' : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -135,7 +110,7 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         {activeTab === 'spec' && (
           spec ? (
             <div className="space-y-4 text-xs font-mono">
-              <div className="p-3 rounded bg-void/60 border border-slate-800">
+              <div className="p-3.5 rounded bg-void/60 border border-slate-800">
                 <h3 className="text-[11px] font-bold text-cyanAccent uppercase mb-1">Executive Summary</h3>
                 <p className="text-slate-300 leading-relaxed font-sans">{spec.summary}</p>
               </div>
@@ -183,10 +158,10 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
               )}
             </div>
           ) : (
-            <div className="text-center py-12 font-mono text-xs">
-              <p className="text-slate-400 mb-3">No LLM Spec Extracted</p>
-              <button onClick={onSummarize} disabled={loading} className="px-4 py-2 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold">
-                {loading ? 'Extracting...' : 'Generate LLM Spec'}
+            <div className="text-center py-16 font-mono text-xs">
+              <p className="text-slate-400 mb-4">No LLM Business Spec Extracted</p>
+              <button onClick={onSummarize} disabled={loading} className="px-5 py-2.5 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold">
+                {loading ? 'Extracting Spec...' : 'Generate LLM Spec'}
               </button>
             </div>
           )
@@ -198,19 +173,19 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
             <table className="w-full text-left font-mono text-xs">
               <thead>
                 <tr className="bg-slate-900 text-cyanAccent uppercase text-[10px]">
-                  <th className="p-2">Level</th>
-                  <th className="p-2">Field</th>
-                  <th className="p-2">PIC</th>
-                  <th className="p-2">Redefines</th>
+                  <th className="p-2.5">Level</th>
+                  <th className="p-2.5">Field</th>
+                  <th className="p-2.5">PIC</th>
+                  <th className="p-2.5">Redefines</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {program.dataDivision.map((f, idx) => (
                   <tr key={idx} className="hover:bg-slate-900/40">
-                    <td className="p-2 text-cyanAccent font-bold">{f.level}</td>
-                    <td className="p-2 text-slate-200">{f.name}</td>
-                    <td className="p-2 text-emerald-400">{f.picClause || '-'}</td>
-                    <td className="p-2 text-amber-400">{f.redefines || '-'}</td>
+                    <td className="p-2.5 text-cyanAccent font-bold">{f.level}</td>
+                    <td className="p-2.5 text-slate-200">{f.name}</td>
+                    <td className="p-2.5 text-emerald-400">{f.picClause || '-'}</td>
+                    <td className="p-2.5 text-amber-400">{f.redefines || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -221,18 +196,18 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         {/* Risk Tab */}
         {activeTab === 'risk' && (
           <div className="space-y-3 font-mono text-xs">
-            <div className="p-3 rounded bg-void/60 border border-slate-800">
+            <div className="p-3.5 rounded bg-void/60 border border-slate-800">
               <span className="text-[10px] text-slate-400 uppercase">Composite Thermal Score</span>
               <div className="text-2xl font-bold mt-1" style={{ color: thermal.hex }}>
                 {risk.score.toFixed(1)} / 100
               </div>
             </div>
 
-            <div className="p-3 rounded bg-void/60 border border-slate-800 space-y-2">
+            <div className="p-3.5 rounded bg-void/60 border border-slate-800 space-y-2">
               <span className="text-[10px] text-slate-400 uppercase">Paragraph Complexity</span>
-              <div className="max-h-40 overflow-y-auto space-y-1">
+              <div className="max-h-60 overflow-y-auto space-y-1">
                 {program.paragraphs.map((p, idx) => (
-                  <div key={idx} className="flex justify-between p-1.5 rounded bg-slate-900/60 border border-slate-800 text-[11px]">
+                  <div key={idx} className="flex justify-between p-2 rounded bg-slate-900/60 border border-slate-800 text-[11px]">
                     <span className="text-slate-200 font-bold">{p.name}</span>
                     <span className="text-cyanAccent">McCabe: {p.cyclomaticComplexity}</span>
                   </div>
@@ -246,19 +221,19 @@ export const FloatingProgramDetailHUD: React.FC<FloatingProgramDetailHUDProps> =
         {activeTab === 'codegen' && (
           codegen ? (
             <div className="space-y-3 font-mono text-xs">
-              <div className="p-3 rounded bg-void/60 border border-slate-800">
-                <div className="flex justify-between mb-1">
+              <div className="p-3.5 rounded bg-void/60 border border-slate-800">
+                <div className="flex justify-between mb-1.5">
                   <span className="text-emerald-400 font-bold">{codegen.stubFilename}</span>
                   <button onClick={() => handleCopy(codegen.stubCode)} className="text-slate-400 hover:text-white text-[10px]">Copy</button>
                 </div>
-                <pre className="p-2 rounded bg-slate-950 text-[11px] max-h-48 overflow-y-auto text-slate-300 whitespace-pre-wrap">
+                <pre className="p-3 rounded bg-slate-950 text-[11px] max-h-60 overflow-y-auto text-slate-300 whitespace-pre-wrap">
                   {codegen.stubCode}
                 </pre>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 font-mono text-xs">
-              <button onClick={onGenerateCodegen} disabled={loading} className="px-4 py-2 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold">
+            <div className="text-center py-16 font-mono text-xs">
+              <button onClick={onGenerateCodegen} disabled={loading} className="px-5 py-2.5 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold">
                 Generate Modern Code
               </button>
             </div>

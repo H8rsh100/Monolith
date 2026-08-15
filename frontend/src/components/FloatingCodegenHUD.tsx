@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CodegenResult, ProgramSummary } from '../api';
-import { X, Code2, Copy, Check, Play, AlertCircle } from 'lucide-react';
+import { X, Code2, Copy, Check } from 'lucide-react';
 
 interface FloatingCodegenHUDProps {
   programs: ProgramSummary[];
@@ -42,16 +42,16 @@ export const FloatingCodegenHUD: React.FC<FloatingCodegenHUDProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 w-[680px] h-[520px] glass-hud flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] border-cyanAccent/30 overflow-hidden font-sans animate-in slide-in-from-bottom duration-300">
+    <div className="w-full h-full flex flex-col bg-void/95 border-l border-cyanAccent/30 font-sans overflow-hidden">
       
       {/* HUD Header */}
-      <div className="p-3.5 border-b border-cyanAccent/20 bg-void/80 flex items-center justify-between">
+      <div className="p-4 border-b border-cyanAccent/20 bg-void/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-cyanAccent" />
-          <h3 className="font-mono font-bold text-xs uppercase tracking-wider text-white">Target Modernization Codegen HUD</h3>
+          <h3 className="font-mono font-bold text-xs uppercase tracking-wider text-white">Target Modernization Codegen Engine</h3>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-cyanAccent p-1 rounded">
-          <X className="h-4 w-4" />
+        <button onClick={onClose} className="text-slate-400 hover:text-red-400 p-1.5 rounded" title="Close Panel">
+          <X className="h-5 w-5" />
         </button>
       </div>
 
@@ -96,10 +96,10 @@ export const FloatingCodegenHUD: React.FC<FloatingCodegenHUDProps> = ({
       </div>
 
       {/* Code Display Area */}
-      <div className="p-4 flex-1 overflow-hidden grid grid-cols-2 gap-4 font-mono text-xs">
+      <div className="p-4 flex-1 overflow-y-auto space-y-4 font-mono text-xs">
         {codegen ? (
           <>
-            <div className="glass-hud flex flex-col overflow-hidden border-slate-800">
+            <div className="p-3 rounded bg-void border border-slate-800 flex flex-col">
               <div className="p-2 border-b border-slate-800 bg-slate-950 flex justify-between items-center text-[11px]">
                 <span className="text-emerald-400 font-bold">{codegen.stubFilename}</span>
                 <button onClick={() => handleCopy(codegen.stubCode, true)} className="text-slate-400 hover:text-white flex items-center gap-1">
@@ -107,12 +107,12 @@ export const FloatingCodegenHUD: React.FC<FloatingCodegenHUDProps> = ({
                   {copiedStub ? 'Copied!' : 'Copy'}
                 </button>
               </div>
-              <pre className="p-3 flex-1 overflow-y-auto bg-void text-slate-300 text-[11px] leading-relaxed whitespace-pre-wrap">
+              <pre className="p-3 bg-slate-950 text-slate-300 text-[11px] leading-relaxed max-h-56 overflow-y-auto whitespace-pre-wrap">
                 {codegen.stubCode}
               </pre>
             </div>
 
-            <div className="glass-hud flex flex-col overflow-hidden border-slate-800">
+            <div className="p-3 rounded bg-void border border-slate-800 flex flex-col">
               <div className="p-2 border-b border-slate-800 bg-slate-950 flex justify-between items-center text-[11px]">
                 <span className="text-purple-400 font-bold">{codegen.testFilename}</span>
                 <button onClick={() => handleCopy(codegen.testCode, false)} className="text-slate-400 hover:text-white flex items-center gap-1">
@@ -120,18 +120,18 @@ export const FloatingCodegenHUD: React.FC<FloatingCodegenHUDProps> = ({
                   {copiedTest ? 'Copied!' : 'Copy'}
                 </button>
               </div>
-              <pre className="p-3 flex-1 overflow-y-auto bg-void text-slate-300 text-[11px] leading-relaxed whitespace-pre-wrap">
+              <pre className="p-3 bg-slate-950 text-slate-300 text-[11px] leading-relaxed max-h-56 overflow-y-auto whitespace-pre-wrap">
                 {codegen.testCode}
               </pre>
             </div>
           </>
         ) : (
-          <div className="col-span-2 flex flex-col items-center justify-center text-slate-400">
-            <p className="mb-3">Select a program to preview modern target code stubs.</p>
+          <div className="text-center py-16 text-slate-400 font-mono">
+            <p className="mb-4">Select a program to preview modern target code stubs.</p>
             <button
               onClick={() => onGenerateCodegen(selectedProgram, targetLang)}
               disabled={loading}
-              className="px-4 py-2 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold"
+              className="px-5 py-2.5 rounded bg-cyanAccent/20 border border-cyanAccent/50 text-cyanAccent font-bold"
             >
               Generate Target Scaffold
             </button>
