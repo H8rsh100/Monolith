@@ -5,6 +5,7 @@ monolith-scaffold.zip
 *.war
 *.zip
 *.tar.gz
+dependency-reduced-pom.xml
 
 # Java
 target/
@@ -31,6 +32,7 @@ frontend/node_modules/
 node_modules/
 frontend/dist/
 .eslintcache
+frontend/package-lock.json
 
 # IDE / OS
 .DS_Store
