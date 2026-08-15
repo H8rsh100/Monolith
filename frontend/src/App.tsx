@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { VerticalNav } from './components/VerticalNav';
 import { ScanChamberGraph } from './components/ScanChamberGraph';
 import { FloatingProgramDetailHUD } from './components/FloatingProgramDetailHUD';
@@ -18,29 +18,6 @@ export const App: React.FC = () => {
   const [report, setReport] = useState<ExecutiveReport | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const loadData = async (cid: string) => {
-    try {
-      setLoading(true);
-      const gData = await api.getGraph(cid);
-      if (gData && gData.nodes && gData.nodes.length > 0) {
-        setGraphData(gData);
-        const progs = await api.getPrograms(cid);
-        setPrograms(progs);
-        if (progs.length > 0) {
-          setSelectedProgram(progs[0].programName);
-          loadProgramDetail(cid, progs[0].programName);
-        }
-      } else {
-        await handleIngest();
-      }
-    } catch (e) {
-      console.warn("Auto-ingesting demo codebase...");
-      await handleIngest();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadProgramDetail = async (cid: string, pname: string) => {
     try {
@@ -142,10 +119,6 @@ export const App: React.FC = () => {
     loadProgramDetail(codebaseId, pname);
     setActiveHud('detail');
   };
-
-  useEffect(() => {
-    loadData(codebaseId);
-  }, []);
 
   const isPaneOpen = activeHud !== 'graph';
 
