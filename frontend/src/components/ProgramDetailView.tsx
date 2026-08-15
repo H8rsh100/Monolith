@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ProgramDetail, CodegenResult } from '../api';
-import { Code, Sparkles, AlertTriangle, CheckCircle, FileText, Copy, Terminal, Shield, ArrowRight } from 'lucide-react';
+import { Code, Sparkles, AlertTriangle, CheckCircle, FileText, Copy, Terminal, Shield, ArrowRight, Table } from 'lucide-react';
 
 interface ProgramDetailViewProps {
   detail: ProgramDetail | null;
@@ -17,7 +17,7 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
   onGenerateCodegen,
   loading
 }) => {
-  const [activeTab, setActiveTab] = useState<'spec' | 'risk' | 'codegen'>('spec');
+  const [activeTab, setActiveTab] = useState<'spec' | 'schema' | 'risk' | 'codegen'>('spec');
   const [copiedCode, setCopiedCode] = useState(false);
 
   if (!detail) {
@@ -120,14 +120,14 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Spec, Risk & Codegen Intelligence Panel */}
+        {/* Right Column: Spec, Data Schema, Risk & Codegen Intelligence Panel */}
         <div className="glass-panel flex flex-col h-full overflow-hidden">
           
           {/* Sub-Navigation Tabs */}
-          <div className="flex items-center border-b border-slate-800 bg-slate-900/50 px-2">
+          <div className="flex items-center border-b border-slate-800 bg-slate-900/50 px-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('spec')}
-              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 ${
+              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 shrink-0 ${
                 activeTab === 'spec'
                   ? 'border-sky-500 text-sky-400'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -137,8 +137,19 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
               Business Spec
             </button>
             <button
+              onClick={() => setActiveTab('schema')}
+              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 shrink-0 ${
+                activeTab === 'schema'
+                  ? 'border-sky-500 text-sky-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Table className="h-4 w-4" />
+              Data Division ({program.dataDivision.length})
+            </button>
+            <button
               onClick={() => setActiveTab('risk')}
-              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 ${
+              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 shrink-0 ${
                 activeTab === 'risk'
                   ? 'border-sky-500 text-sky-400'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -149,14 +160,14 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('codegen')}
-              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 ${
+              className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center gap-2 shrink-0 ${
                 activeTab === 'codegen'
                   ? 'border-sky-500 text-sky-400'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
               }`}
             >
               <Code className="h-4 w-4" />
-              Generated Python
+              Generated Code
             </button>
           </div>
 
@@ -251,13 +262,44 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
               )
             )}
 
-            {/* 2. Risk Metrics Tab */}
+            {/* 2. Data Division Schema Tab */}
+            {activeTab === 'schema' && (
+              <div className="space-y-4">
+                <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+                  Data division memory layouts, PIC clause formats, and REDEFINES memory mappings.
+                </div>
+
+                <div className="border border-slate-800 rounded-xl overflow-hidden">
+                  <table className="w-full text-left border-collapse font-mono text-xs">
+                    <thead>
+                      <tr className="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase text-[11px]">
+                        <th className="py-2.5 px-3">Level</th>
+                        <th className="py-2.5 px-3">Field Name</th>
+                        <th className="py-2.5 px-3">PIC Clause</th>
+                        <th className="py-2.5 px-3">Redefines Target</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {program.dataDivision.map((field, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/50">
+                          <td className="py-2.5 px-3 font-bold text-sky-400">{field.level}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-200">{field.name}</td>
+                          <td className="py-2.5 px-3 text-emerald-400">{field.picClause || '-'}</td>
+                          <td className="py-2.5 px-3 text-amber-400">{field.redefines ? `REDEFINES ${field.redefines}` : '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* 3. Risk Metrics Tab */}
             {activeTab === 'risk' && (
               <div className="space-y-5">
                 <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
                   <h3 className="text-xs font-mono font-bold text-slate-300 uppercase mb-3">Score Breakdown (Composite Score: {risk.score}/100)</h3>
                   
-                  {/* Score Bars */}
                   <div className="space-y-3 font-mono text-xs">
                     <div>
                       <div className="flex justify-between mb-1 text-slate-400">
@@ -301,7 +343,6 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
                   </div>
                 </div>
 
-                {/* Paragraph Complexity Breakdown */}
                 <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
                   <h3 className="text-xs font-mono font-bold text-slate-300 uppercase mb-3">Paragraph Complexity Details</h3>
                   <div className="space-y-2 max-h-48 overflow-y-auto font-mono text-xs">
@@ -321,12 +362,12 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
               </div>
             )}
 
-            {/* 3. Generated Python Codegen Tab */}
+            {/* 4. Generated Codegen Tab */}
             {activeTab === 'codegen' && (
               codegen ? (
                 <div className="space-y-4">
                   <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300 font-mono">
-                    Scaffold target Python module and pytest suite generated from business rules.
+                    Scaffold target code generated from legacy business rules.
                   </div>
 
                   <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
@@ -356,16 +397,16 @@ export const ProgramDetailView: React.FC<ProgramDetailViewProps> = ({
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Code className="h-10 w-10 text-sky-400 mb-3" />
-                  <p className="text-sm text-slate-300 font-semibold mb-1">No Python Stub Generated Yet</p>
+                  <p className="text-sm text-slate-300 font-semibold mb-1">No Code Generated Yet</p>
                   <p className="text-xs text-slate-500 max-w-sm mb-4">
-                    Generate modern Python 3.12 function stubs and pytest skeletons matching legacy business rules.
+                    Generate modern Python 3.12 or Java Spring Boot function stubs and test skeletons.
                   </p>
                   <button
                     onClick={onGenerateCodegen}
                     disabled={loading}
                     className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md"
                   >
-                    Generate Python & Pytest Scaffold
+                    Generate Modern Code Scaffold
                   </button>
                 </div>
               )
