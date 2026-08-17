@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8001/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (
+  typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:8001/api'
+    : '/api'
+);
 
 export interface ProgramSummary {
   programName: string;
