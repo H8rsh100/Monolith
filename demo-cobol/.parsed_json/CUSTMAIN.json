@@ -1,0 +1,111 @@
+{
+  "programName" : "CUSTMAIN",
+  "linesOfCode" : 68,
+  "dynamicCalls" : false,
+  "paragraphs" : [ {
+    "name" : "MAIN-PROCEDURE",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "0000-MAIN-LOGIC",
+    "statementCount" : 6,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "1000-INITIALIZE-FILES",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "2000-PROCESS-RECORDS",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "END-READ",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "2100-EVALUATE-CUSTOMER",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 6
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "3000-CLOSE-FILES",
+    "statementCount" : 3,
+    "cyclomaticComplexity" : 1
+  } ],
+  "calls" : [ "INTRCALC", "ACCTPROC", "TXNLOG" ],
+  "copybooks" : [ "CUSTREC", "ACCTREC" ],
+  "fileIO" : [ {
+    "name" : "CUST-FILE",
+    "mode" : "INPUT-OUTPUT",
+    "organization" : "INDEXED",
+    "assignTo" : "CUSTDATA"
+  }, {
+    "name" : "ACCT-FILE",
+    "mode" : "INPUT-OUTPUT",
+    "organization" : "INDEXED",
+    "assignTo" : "ACCTDATA"
+  } ],
+  "sqlBlocks" : [ ],
+  "dataDivision" : [ {
+    "level" : "01",
+    "name" : "WS-FLAGS",
+    "picClause" : "",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-END-OF-FILE",
+    "picClause" : "X(01)",
+    "redefines" : "",
+    "conditionValues" : [ "N" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-PROCESS-STATUS",
+    "picClause" : "X(02)",
+    "redefines" : "",
+    "conditionValues" : [ "OK" ]
+  }, {
+    "level" : "01",
+    "name" : "WS-COUNTERS",
+    "picClause" : "",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-RECORDS-READ",
+    "picClause" : "9(06)",
+    "redefines" : "",
+    "conditionValues" : [ "ZERO" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-RECORDS-PROCESSED",
+    "picClause" : "9(06)",
+    "redefines" : "",
+    "conditionValues" : [ "ZERO" ]
+  }, {
+    "level" : "01",
+    "name" : "WS-SUBPROGRAM-PARAMS",
+    "picClause" : "",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-CALL-TARGET",
+    "picClause" : "X(08)",
+    "redefines" : "",
+    "conditionValues" : [ "ACCTPROC" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-PASS-AMOUNT",
+    "picClause" : "9(08)V99",
+    "redefines" : "",
+    "conditionValues" : [ "00001000" ]
+  } ]
+}

@@ -1,0 +1,24 @@
+{
+  "jobName" : "BATJOB02",
+  "steps" : [ {
+    "stepName" : "STEP010",
+    "program" : "ACCTPROC",
+    "ddStatements" : [ {
+      "ddName" : "STEPLIB",
+      "dsn" : "BANK.BATCH.LOADLIB"
+    }, {
+      "ddName" : "ACCTDATA",
+      "dsn" : "BANK.VSAM.ACCTMAST"
+    } ]
+  }, {
+    "stepName" : "STEP020",
+    "program" : "INTRCALC",
+    "ddStatements" : [ {
+      "ddName" : "STEPLIB",
+      "dsn" : "BANK.BATCH.LOADLIB"
+    }, {
+      "ddName" : "SYSIN",
+      "dsn" : "BANK.CONTROL.PARMS(INTRPARM)"
+    } ]
+  } ]
+}

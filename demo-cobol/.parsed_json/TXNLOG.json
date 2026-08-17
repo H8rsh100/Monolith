@@ -1,0 +1,56 @@
+{
+  "programName" : "TXNLOG",
+  "linesOfCode" : 44,
+  "dynamicCalls" : false,
+  "paragraphs" : [ {
+    "name" : "MAIN-PROCEDURE",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "0000-LOG-TRANSACTION-MAIN",
+    "statementCount" : 4,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "1000-WRITE-VSAM-AUDIT",
+    "statementCount" : 9,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "2000-EXECUTE-CICS-NOTIFY",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "END-EXEC",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  } ],
+  "calls" : [ ],
+  "copybooks" : [ "TXNREC", "CUSTREC" ],
+  "fileIO" : [ {
+    "name" : "AUDIT-FILE",
+    "mode" : "INPUT-OUTPUT",
+    "organization" : "SEQUENTIAL",
+    "assignTo" : "AUDITLOG"
+  } ],
+  "sqlBlocks" : [ {
+    "type" : "CICS",
+    "rawText" : "WRITEQ TS\n               QUEUE('AUDITQ')\n               FROM(TRANSACTION-RECORD)\n               LENGTH(LENGTH OF TRANSACTION-RECORD)\n               RESP(WS-CICS-RESPONSE)",
+    "targetTables" : [ ]
+  } ],
+  "dataDivision" : [ {
+    "level" : "01",
+    "name" : "WS-CICS-RESPONSE",
+    "picClause" : "S9(08)",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "01",
+    "name" : "WS-TIMESTAMP",
+    "picClause" : "X(20)",
+    "redefines" : "",
+    "conditionValues" : [ "2026-08-14-22" ]
+  } ]
+}

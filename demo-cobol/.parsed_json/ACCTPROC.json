@@ -1,0 +1,79 @@
+{
+  "programName" : "ACCTPROC",
+  "linesOfCode" : 52,
+  "dynamicCalls" : false,
+  "paragraphs" : [ {
+    "name" : "MAIN-PROCEDURE",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "0000-PROCESS-ACCOUNT",
+    "statementCount" : 3,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "1000-FETCH-DB2-ACCOUNT",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "END-EXEC",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "2000-CALCULATE-FEE",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 7
+  }, {
+    "name" : "END-EVALUATE",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "3000-UPDATE-DB2-ACCOUNT",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "END-EXEC",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  } ],
+  "calls" : [ "INTRCALC" ],
+  "copybooks" : [ "ACCTREC", "CUSTREC" ],
+  "fileIO" : [ ],
+  "sqlBlocks" : [ {
+    "type" : "SQL",
+    "rawText" : "SELECT ACCT_BALANCE, ACCT_NUMBER\n               INTO :WS-BAL, :ACCT-NUMBER\n               FROM BANK_ACCOUNTS\n               WHERE CUST_ID = :WS-ID",
+    "targetTables" : [ "BANK_ACCOUNTS" ]
+  }, {
+    "type" : "SQL",
+    "rawText" : "UPDATE BANK_ACCOUNTS\n               SET ACCT_BALANCE = :WS-BAL\n               WHERE CUST_ID = :WS-ID",
+    "targetTables" : [ "BANK_ACCOUNTS" ]
+  } ],
+  "dataDivision" : [ {
+    "level" : "01",
+    "name" : "WS-SQL-VARS",
+    "picClause" : "",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-BAL",
+    "picClause" : "9(10)V99.",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-ID",
+    "picClause" : "X(12).",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-STATUS-CODE",
+    "picClause" : "S9(04)",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  } ]
+}

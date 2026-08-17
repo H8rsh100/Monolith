@@ -1,0 +1,27 @@
+{
+  "jobName" : "BATJOB01",
+  "steps" : [ {
+    "stepName" : "STEP010",
+    "program" : "CUSTMAIN",
+    "ddStatements" : [ {
+      "ddName" : "STEPLIB",
+      "dsn" : "BANK.BATCH.LOADLIB"
+    }, {
+      "ddName" : "CUSTDATA",
+      "dsn" : "BANK.VSAM.CUSTMAST"
+    }, {
+      "ddName" : "ACCTDATA",
+      "dsn" : "BANK.VSAM.ACCTMAST"
+    } ]
+  }, {
+    "stepName" : "STEP020",
+    "program" : "TXNLOG",
+    "ddStatements" : [ {
+      "ddName" : "STEPLIB",
+      "dsn" : "BANK.BATCH.LOADLIB"
+    }, {
+      "ddName" : "AUDITLOG",
+      "dsn" : "BANK.VSAM.AUDITLOG"
+    } ]
+  } ]
+}

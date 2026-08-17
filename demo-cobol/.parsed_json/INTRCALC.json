@@ -1,0 +1,83 @@
+{
+  "programName" : "INTRCALC",
+  "linesOfCode" : 65,
+  "dynamicCalls" : false,
+  "paragraphs" : [ {
+    "name" : "MAIN-PROCEDURE",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "0000-CALCULATE-INTEREST-MAIN",
+    "statementCount" : 6,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "1000-DETERMINE-TIER-RATES",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 4
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 7
+  }, {
+    "name" : "END-EVALUATE",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "2000-COMPUTE-COMPOUND-INTEREST",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 2
+  }, {
+    "name" : "END-IF",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 1
+  }, {
+    "name" : "3000-APPLY-PROMOTIONS",
+    "statementCount" : 0,
+    "cyclomaticComplexity" : 5
+  }, {
+    "name" : "END-EVALUATE",
+    "statementCount" : 1,
+    "cyclomaticComplexity" : 1
+  } ],
+  "calls" : [ ],
+  "copybooks" : [ "ACCTREC", "CUSTREC" ],
+  "fileIO" : [ ],
+  "sqlBlocks" : [ ],
+  "dataDivision" : [ {
+    "level" : "01",
+    "name" : "WS-INTEREST-CALCS",
+    "picClause" : "",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  }, {
+    "level" : "05",
+    "name" : "WS-BASE-RATE",
+    "picClause" : "9(02)V9999",
+    "redefines" : "",
+    "conditionValues" : [ "03" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-BONUS-RATE",
+    "picClause" : "9(02)V9999",
+    "redefines" : "",
+    "conditionValues" : [ "00" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-TOTAL-INTEREST",
+    "picClause" : "9(08)V99",
+    "redefines" : "",
+    "conditionValues" : [ "ZERO" ]
+  }, {
+    "level" : "05",
+    "name" : "WS-TIER-INDEX",
+    "picClause" : "9(02)",
+    "redefines" : "",
+    "conditionValues" : [ "1" ]
+  }, {
+    "level" : "01",
+    "name" : "LS-BALANCE-PARAM",
+    "picClause" : "9(08)V99.",
+    "redefines" : "",
+    "conditionValues" : [ ]
+  } ]
+}
