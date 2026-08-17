@@ -96,4 +96,4 @@ $env:PYTHONPATH="backend"; pytest backend/tests -v
 
 ## License
 
-Enterprise Proprietary Architecture. Built for Mainframe Modernization & Cloud Migration Workflows.
+MIT - see [LICENSE](LICENSE).
