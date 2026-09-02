@@ -28,15 +28,23 @@ class GraphBuilder:
 
             # Add file IO nodes and edges
             for f_io in prog.fileIO:
-                f_name = f_io.get("name") or "FILE"
+                if isinstance(f_io, dict):
+                    f_name = f_io.get("name") or "FILE"
+                    assign_to = f_io.get("assignTo", "")
+                    mode = f_io.get("mode", "")
+                else:
+                    f_name = getattr(f_io, "name", "FILE") or "FILE"
+                    assign_to = getattr(f_io, "assignTo", "") or ""
+                    mode = getattr(f_io, "mode", "") or ""
+
                 file_node = f"file_{f_name}"
                 if not graph.has_node(file_node):
                     graph.add_node(
                         file_node,
                         label=f_name,
                         nodeType="file",
-                        assignTo=f_io.get("assignTo", ""),
-                        mode=f_io.get("mode", "")
+                        assignTo=assign_to,
+                        mode=mode
                     )
                 graph.add_edge(p_node, file_node, relation="ACCESSES")
 
@@ -52,7 +60,11 @@ class GraphBuilder:
             j_node = f"jcl_{job.jobName}"
             graph.add_node(j_node, label=job.jobName, nodeType="jcl_job")
             for step in job.steps:
-                exec_prog = step.get("execProgram")
+                if isinstance(step, dict):
+                    exec_prog = step.get("program") or step.get("execProgram")
+                else:
+                    exec_prog = getattr(step, "program", None) or getattr(step, "execProgram", None)
+
                 if exec_prog:
                     target_prog = f"prog_{exec_prog}"
                     if not graph.has_node(target_prog):
@@ -106,7 +118,7 @@ class GraphBuilder:
                 "target": v,
                 "label": relation,
                 "animated": True,
-                "style": {"stroke": "#2DE2E6", "strokeWidth": 2}
+                "style": {"stroke": "#1B2A3A", "strokeWidth": 1.5}
             })
 
         return {"nodes": nodes, "edges": edges}

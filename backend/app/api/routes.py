@@ -22,7 +22,20 @@ class IngestRequest(BaseModel):
 def ingest_codebase(payload: IngestRequest):
     codebase_path = payload.codebase_dir
     if not os.path.isabs(codebase_path):
-        codebase_path = os.path.abspath(codebase_path)
+        candidates = [
+            os.path.abspath(codebase_path),
+            os.path.abspath(os.path.join(os.getcwd(), codebase_path)),
+            os.path.abspath(os.path.join(os.getcwd(), "..", codebase_path)),
+            os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), codebase_path))
+        ]
+        found = False
+        for cand in candidates:
+            if os.path.exists(cand):
+                codebase_path = cand
+                found = True
+                break
+        if not found:
+            codebase_path = candidates[0]
 
     if not os.path.exists(codebase_path):
         raise HTTPException(status_code=404, detail=f"Codebase directory not found: {codebase_path}")
