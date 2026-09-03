@@ -19,6 +19,16 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
+@app.get("/")
+def root_status():
+    return {
+        "status": "online",
+        "service": "Monolith Legacy Engine Backend API",
+        "version": settings.VERSION,
+        "docs": "/docs",
+        "apiPrefix": "/api"
+    }
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "version": settings.VERSION}
